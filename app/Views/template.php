@@ -1,28 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css">
-    <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple Navbar</title>
 </head>
 <body>
-    <?php
-        echo '<ul class="nav justify-content-end">';
-        echo '  <li class="nav-item">';
-        echo '    <a class="nav-link active" aria-current="page" href="#">Active</a>';
-        echo '  </li>';
-        echo '  <li class="nav-item">';
-        echo '    <a class="nav-link" href="#">Link</a>';
-        echo '  </li>';
-        echo '  <li class="nav-item">';
-        echo '    <a class="nav-link" href="#">Link</a>';
-        echo '  </li>';
-        echo '  <li class="nav-item">';
-        echo '    <a class="nav-link disabled" aria-disabled="true">Disabled</a>';
-        echo '  </li>';
-        echo '</ul>';
-?>
-    
+
+  <div class="navbar">
+    <a href="#">Home</a>
+    <a href="#">About</a>
+    <a href="#">Services</a>
+    <a href="#">Contact</a>
+  </div>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    .navbar {
+      background-color: #000;
+      padding: 10px 20px;
+    }
+
+    .navbar a {
+      display: inline-block;
+      color: black;
+      text-decoration: none;
+      padding: 12px 16px;
+      font-size: 17px;
+      text-align: right;
+      border: white;
+      border-radius: 500px;
+      background-color: white;
+    }
+
+    .navbar a:hover {
+      background-color: #333;
+      color: white;
+    }
+  </style>
+
 </body>
 </html>
