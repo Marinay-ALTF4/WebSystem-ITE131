@@ -12,6 +12,18 @@
     <a href="#">About</a>
     <a href="#">Services</a>
     <a href="#">Contact</a>
+    <?php
+      $nav_items = [
+        'Home' => '#',
+        'About' => '#',
+        'Services' => '#',
+        'Contact' => '#'
+      ];
+
+      foreach ($nav_items as $name => $link) {
+        echo "<a href=\"$link\">$name</a>";
+      }
+    ?>
   </div>
 
   <style>
