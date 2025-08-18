@@ -3,57 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css">
   <title>Simple Navbar</title>
 </head>
 <body>
 
-  <div class="navbar">
-    <a href="#">Home</a>
-    <a href="#">About</a>
-    <a href="#">Services</a>
-    <a href="#">Contact</a>
-    <?php
-      $nav_items = [
-        'Home' => '#',
-        'About' => '#',
-        'Services' => '#',
-        'Contact' => '#'
-      ];
+<nav class="navbar bg-body-tertiary">
+  <div class="container-fluid d-flex justify-content-between align-items-center">
 
-      foreach ($nav_items as $name => $link) {
-        echo "<a href=\"$link\">$name</a>";
-      }
-    ?>
+    <ul class="nav">
+      <li class="nav-item">
+        <a class="nav-link border rounded px-3 py-2 me-2" href="#">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link border rounded px-3 py-2 me-2" href="#">About</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link border rounded px-3 py-2" href="#">Settings</a>
+      </li>
+    </ul>
+
+    <form class="d-flex" role="search">
+      <input class="form-control me-2" type="search" placeholder="Search" />
+      <button class="btn btn-outline-success" type="submit">Search</button>
+    </form>
+
   </div>
+</nav>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-    }
-
-    .navbar {
-      background-color: #000;
-      padding: 10px 20px;
-    }
-
-    .navbar a {
-      display: inline-block;
-      color: black;
-      text-decoration: none;
-      padding: 12px 16px;
-      font-size: 17px;
-      text-align: right;
-      border: white;
-      border-radius: 500px;
-      background-color: white;
-    }
-
-    .navbar a:hover {
-      background-color: #333;
-      color: white;
-    }
-  </style>
+  </div>
+</nav>
 
 </body>
 </html>
