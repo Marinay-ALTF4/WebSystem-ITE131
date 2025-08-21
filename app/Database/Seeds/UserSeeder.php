@@ -21,12 +21,7 @@ class UserSeeder extends Seeder
                 'password' => password_hash('student123', PASSWORD_DEFAULT),
                 'role'     => 'student',
             ],
-            [
-                'name'     => 'Lebron James',
-                'email'    => 'lbrnjames@gmail.com',
-                'password' => password_hash('student123', PASSWORD_DEFAULT),
-                'role'     => 'student',
-            ],
+    
             [
                 'name'     => 'Lemuel Patotoya',
                 'email'    => 'lmlpatotoya@gmail.com',
