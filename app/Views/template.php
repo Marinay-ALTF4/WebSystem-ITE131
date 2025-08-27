@@ -13,13 +13,13 @@
 
     <ul class="nav">
       <li class="nav-item">
-        <a class="nav-link border rounded px-3 py-2 me-2" href="#">Home</a>
+        <a class="nav-link border rounded px-3 py-2 me-2" href="<?= base_url('index')?>">Home</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link border rounded px-3 py-2 me-2" href="#">About</a>
+        <a class="nav-link border rounded px-3 py-2 me-2" href="<?= base_url('about')?>">About</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link border rounded px-3 py-2" href="#">Settings</a>
+        <a class="nav-link border rounded px-3 py-2" href="contact">Contact</a>
       </li>
     </ul>
 
