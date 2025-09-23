@@ -19,3 +19,8 @@ use CodeIgniter\Router\RouteCollection;
         $routes->get('logout', 'Auth::logout');
         $routes->get('dashboard', 'Auth::dashboard');
 
+        // Role-based dashboards
+        $routes->get('admin/dashboard', 'Auth::adminDashboard');
+        $routes->get('teacher/dashboard', 'Auth::teacherDashboard');
+        $routes->get('student/dashboard', 'Auth::studentDashboard');
+
