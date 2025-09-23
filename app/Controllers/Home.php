@@ -14,18 +14,8 @@ class Home extends BaseController
         return view('about'); // About page
     }
 
-    public function contact() // Contact page
+    public function contact()
     {
-        return view('contact');
-    }
-
-    public function dashboard()
-    {
-        $session = session();
-        if (! $session->get('isLoggedIn')) {
-            return redirect()->to(base_url('login'));
-        }
-
-        return view('dashboard');
+        return view('contact'); // Contact page
     }
 }

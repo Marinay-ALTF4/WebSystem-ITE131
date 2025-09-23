@@ -2,18 +2,20 @@
 
 use CodeIgniter\Router\RouteCollection;
 
-/** @var RouteCollection $routes */
-$routes->get('/home', 'Home::index');
-$routes->get('/index', 'Home::index');
-$routes->get('/about', 'Home::about');
-$routes->get('/contact', 'Home::contact');
+/**
+ * @var RouteCollection $routes
+ */
 
-// Authentication routes Lab 4
-$routes->get('/login', 'Auth::login');
-$routes->post('/login', 'Auth::attempt');
-$routes->get('/logout', 'Auth::logout');
-$routes->get('/dashboard', 'Dashboard::index');
+    // Home, About, Contact
+    $routes->get('/', 'Auth::login');
+    $routes->get('/about', 'Home::about');
+    $routes->get('/contact', 'Home::contact');
 
-// Lab 4 Registration
-$routes->get('/register', 'Auth::register');
-$routes->post('/register', 'Auth::store');
+    // Lab 4 - User Authentication
+        $routes->get('register', 'Auth::register');
+        $routes->post('register', 'Auth::register');
+        $routes->get('login', 'Auth::login');
+        $routes->post('login', 'Auth::login');
+        $routes->get('logout', 'Auth::logout');
+        $routes->get('dashboard', 'Auth::dashboard');
+

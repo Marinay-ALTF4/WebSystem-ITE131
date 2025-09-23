@@ -10,27 +10,25 @@ class UserSeeder extends Seeder
     {
         $data = [
             [
-                'name'     => 'Admin User',
+                'name'     => 'admin',
                 'email'    => 'admin@example.com',
-                'password' => password_hash('admin123', PASSWORD_DEFAULT),
+                'password' => password_hash('123', PASSWORD_DEFAULT),
                 'role'     => 'admin',
             ],
             [
-                'name'     => 'Justin Nabunturan',
-                'email'    => 'jstnabunturan@gmail.com',
-                'password' => password_hash('student123', PASSWORD_DEFAULT),
-                'role'     => 'student',
+                'name'     => 'Prof. Lemuel',
+                'email'    => 'Lemuel@example.com',
+                'password' => password_hash('123', PASSWORD_DEFAULT),
+                'role'     => 'teacher',
             ],
-    
             [
-                'name'     => 'Lemuel Patotoya',
-                'email'    => 'lmlpatotoya@gmail.com',
-                'password' => password_hash('instructor123', PASSWORD_DEFAULT),
-                'role'     => 'instructor',
+                'name'     => 'Bugoy na Koykoy',
+                'email'    => 'koy@example.com',
+                'password' => password_hash('123', PASSWORD_DEFAULT),
+                'role'     => 'student',
             ],
         ];
 
-        // Insert multiple rows at once
         $this->db->table('users')->insertBatch($data);
     }
 }

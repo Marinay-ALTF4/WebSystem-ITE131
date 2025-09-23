@@ -1,38 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css">
-  <title>Simple Navbar</title>
-</head>
-<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark py-2">
+  <div class="container-sm">
 
-<nav class="navbar bg-body-tertiary">
-  <div class="container-fluid d-flex justify-content-between align-items-center">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-    <ul class="nav">
-      <li class="nav-item">
-        <a class="nav-link border rounded px-3 py-2 me-2" href="<?= base_url('index')?>">Home</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link border rounded px-3 py-2 me-2" href="<?= base_url('about')?>">About</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link border rounded px-3 py-2" href="contact">Contact</a>
-      </li>
-    </ul>
+    <div class="collapse navbar-collapse" id="navbarNav">
 
-    <form class="d-flex" role="search">
-      <input class="form-control me-2" type="search" placeholder="Search" />
-      <button class="btn btn-outline-success" type="submit">Search</button>
-    </form>
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link border rounded px-3 py-2 me-2 text-light bg-dark bg-opacity-50" href="<?= base_url('dashboard') ?>">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link border rounded px-3 py-2 me-2 text-light bg-dark bg-opacity-50" href="<?= base_url('about') ?>">About</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link border rounded px-3 py-2 text-light bg-dark bg-opacity-50" href="<?= base_url('contact') ?>">Contact</a>
+        </li>
+      </ul>
 
+
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link border rounded px-3 py-2 text-light bg-dark bg-opacity-50" href="<?= base_url('logout') ?>">Logout</a>
+        </li>
+      </ul>
+    </div>
   </div>
 </nav>
-
-  </div>
-</nav>
-
-</body>
-</html>

@@ -2,99 +2,102 @@
 
 namespace App\Controllers;
 
-use App\Models\UserModel;
+use App\Models\UserModel; 
+use CodeIgniter\Controller;
 
-class Auth extends BaseController
+class Auth extends Controller
 {
+    public function register()
+    {
+            helper(['form']);
+
+            if ($this->request->getMethod() === 'POST') {
+                $rules = [
+                     'name'              => 'required|min_length[3]',
+                     'email'             => 'required|valid_email|is_unique[users.email]',
+                     'password'          => 'required|min_length[6]',
+                     'password_confirm'  => 'matches[password]'
+                ];
+
+                if ($this->validate($rules)) {
+                    $userModel = new \App\Models\UserModel();
+                    $userModel->save([
+                        'name'     => $this->request->getVar('name'),
+                        'email'    => $this->request->getVar('email'),
+                        'password' => password_hash($this->request->getVar('password'), PASSWORD_DEFAULT),
+                        'role'     => 'student'
+                    ]);
+
+                    return redirect()->to('/login')->with('success', 'Registration Success. Please proceed to login.');
+                } else {
+                    return view('auth/register', ['validation' => $this->validator]);
+                }
+            }
+
+            return view('auth/register');
+    }
+
+
+
+
     public function login()
     {
-        $session = session();
-        if ($session->get('isLoggedIn')) {
-            return redirect()->to(base_url('dashboard'));
+        helper(['form']);
+
+        if ($this->request->getMethod() === 'POST') {
+            $session   = session();
+            $userModel = new UserModel();
+
+            $rules = [
+                'email'    => 'required|valid_email',
+                'password' => 'required|min_length[6]',
+            ];
+
+            if (!$this->validate($rules)) {
+                return view('auth/login', ['validation' => $this->validator]);
+            }
+
+            $user = $userModel->where('email', $this->request->getVar('email'))->first();
+
+            if ($user && password_verify($this->request->getVar('password'), $user['password'])) {
+                $session->set([
+                    'userID'    => $user['id'],
+                    'name'      => $user['name'],
+                    'email'    => $user['email'],
+                    'role'      => $user['role'],
+                    'isLoggedIn'=> true
+                ]);
+                $session->setFlashdata('success', 'Welcome ' . $user['name']);
+                return redirect()->to('dashboard');
+            }
+
+            $session->setFlashdata('error', 'Invalid login credentials');
+            return redirect()->back();
         }
 
-        return view('auth/login'); 
+        return view('auth/login');
     }
 
-    public function attempt()
-    {
-        $request = $this->request;
-        $email = trim((string) $request->getPost('email'));
-        $password = (string) $request->getPost('password');
 
-        $userModel = new UserModel();
-        $user = $userModel->where('email', $email)->first();
 
-        if ($user && password_verify($password, $user['password'])) {
-            $session = session();
-            $session->set([
-                'isLoggedIn' => true,
-                'userEmail'  => $email,
-                'userRole'   => $user['role'], 
-            ]);
-            return redirect()->to(base_url('dashboard'));
-        }
-
-        return redirect()->back()->with('login_error', 'Invalid email or password.')->withInput();
-    }
 
     public function logout()
     {
-        $session = session();
-        $session->destroy();
-        return redirect()->to(base_url('login'));
+        session()->destroy();
+        return redirect()->to('login');
     }
 
-    public function register()
-    {
-        $session = session();
-        if ($session->get('isLoggedIn')) {
-            return redirect()->to(base_url('dashboard'));
-        }
 
-        return view('auth/register'); 
+
+
+  public function dashboard()
+{
+    $session = session();
+
+    if (! $session->get('isLoggedIn')) {
+        return redirect()->to(base_url('login'))->with('login_error', 'Please log in first.');
     }
 
-    public function store()
-    {
-        $username        = trim((string) $this->request->getPost('username'));
-        $email           = trim((string) $this->request->getPost('email'));
-        $password        = (string) $this->request->getPost('password');
-        $passwordConfirm = (string) $this->request->getPost('password_confirm');
-
-        if ($username === '' || $email === '' || $password === '' || $passwordConfirm === '') {
-            return redirect()->back()->withInput()->with('register_error', 'All fields are required.');
-        }
-
-        if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return redirect()->back()->withInput()->with('register_error', 'Invalid email address.');
-        }
-
-        if ($password !== $passwordConfirm) {
-            return redirect()->back()->withInput()->with('register_error', 'Passwords do not match.');
-        }
-
-        $userModel = new UserModel();
-
-        if ($userModel->where('email', $email)->first()) {
-            return redirect()->back()->withInput()->with('register_error', 'Email is already registered.');
-        }
-
-        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-
-        $userId = $userModel->insert([
-            'username' => $username,
-            'email'    => $email,
-            'role'     => 'student', 
-            'password' => $passwordHash,
-        ], true);
-
-        if (! $userId) {
-            return redirect()->back()->withInput()->with('register_error', 'Registration failed.');
-        }
-
-        return redirect()
-            ->to(base_url('login'))
-            ->with('register_success', 'Account created successfully. Please log in.');
-    }
+    return view('auth/dashboard'); 
+}
 }
