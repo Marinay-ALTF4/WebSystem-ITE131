@@ -21,7 +21,7 @@ class Auth extends Controller
                 ];
 
                 if ($this->validate($rules)) {
-                    $userModel = new \App\Models\UserModel();
+                    $userModel = new UserModel();
                     $userModel->save([
                         'name'     => $this->request->getVar('name'),
                         'email'    => $this->request->getVar('email'),
@@ -51,8 +51,7 @@ class Auth extends Controller
 
             $rules = [
                 'email'    => 'required|valid_email',
-                'password' => 'required|min_length[6]',
-                'role'     => 'required|in_list[admin,teacher,student]'
+                'password' => 'required|min_length[6]'
             ];
 
             if (!$this->validate($rules)) {
@@ -60,32 +59,15 @@ class Auth extends Controller
             }
 
             $user = $userModel->where('email', $this->request->getVar('email'))->first();
-
-            $selectedRole = strtolower($this->request->getVar('role'));
-
             if ($user && password_verify($this->request->getVar('password'), $user['password'])) {
-                if (isset($user['role']) && strtolower($user['role']) !== $selectedRole) {
-                    $session->setFlashdata('error', 'Selected role does not match this account.');
-                    return redirect()->back()->withInput();
-                }
                 $session->set([
                     'userID'    => $user['id'],
                     'name'      => $user['name'],
                     'email'     => $user['email'],
-                    'role'      => $user['role'] ?? $selectedRole,
+                    'role'      => $user['role'],
                     'isLoggedIn'=> true
                 ]);
                 $session->setFlashdata('success', 'Welcome ' . $user['name']);
-
-                $role = strtolower($session->get('role'));
-                if ($role === 'admin') {
-                    return redirect()->to('admin/dashboard');
-                } elseif ($role === 'teacher') {
-                    return redirect()->to('teacher/dashboard');
-                } elseif ($role === 'student') {
-                    return redirect()->to('student/dashboard');
-                }
-
                 return redirect()->to('dashboard');
             }
 
@@ -116,42 +98,31 @@ class Auth extends Controller
         return redirect()->to(base_url('login'))->with('login_error', 'Please log in first.');
     }
 
-    return view('auth/dashboard'); 
+    $role = strtolower((string) $session->get('role'));
+
+    $userModel = new UserModel();
+    $data = [];
+
+    switch ($role) {
+        case 'admin':
+            $data['usersCount'] = $userModel->countAllResults();
+            $data['recentUsers'] = $userModel
+                ->orderBy('id', 'DESC')
+                ->limit(5)
+                ->find();
+            break;
+        case 'teacher':
+            $data['students'] = $userModel->where('role', 'student')->findAll();
+            break;
+        case 'student':
+        default:
+            $data['profile'] = $userModel->find((int) $session->get('userID'));
+            break;
+    }
+
+    return view('auth/dashboard', [
+        'role' => $role,
+        'data' => $data,
+    ]); 
 }
-
-    public function adminDashboard()
-    {
-        $session = session();
-        if (! $session->get('isLoggedIn')) {
-            return redirect()->to(base_url('login'))->with('login_error', 'Please log in first.');
-        }
-        if (strtolower($session->get('role')) !== 'admin') {
-            return redirect()->to('login')->with('error', 'Unauthorized access.');
-        }
-        return view('auth/AdminRole');
-    }
-
-    public function teacherDashboard()
-    {
-        $session = session();
-        if (! $session->get('isLoggedIn')) {
-            return redirect()->to(base_url('login'))->with('login_error', 'Please log in first.');
-        }
-        if (strtolower($session->get('role')) !== 'teacher') {
-            return redirect()->to('login')->with('error', 'Unauthorized access.');
-        }
-        return view('auth/TeacherRole');
-    }
-
-    public function studentDashboard()
-    {
-        $session = session();
-        if (! $session->get('isLoggedIn')) {
-            return redirect()->to(base_url('login'))->with('login_error', 'Please log in first.');
-        }
-        if (strtolower($session->get('role')) !== 'student') {
-            return redirect()->to('login')->with('error', 'Unauthorized access.');
-        }
-        return view('auth/StudentRole');
-    }
 }

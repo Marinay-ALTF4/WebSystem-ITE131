@@ -42,15 +42,7 @@
                 <input type="password" name="password" class="form-control" placeholder="Enter your password" required>
             </div>
 
-            <div class="mb-4">
-                <label class="form-label" style="color: #000000ff;">Role</label>
-                <select name="role" class="form-select" required>
-                    <option value="" disabled <?= set_value('role') ? '' : 'selected' ?>>Select role</option>
-                    <option value="admin" <?= set_value('role') === 'admin' ? 'selected' : '' ?>>Admin</option>
-                    <option value="teacher" <?= set_value('role') === 'teacher' ? 'selected' : '' ?>>Teacher</option>
-                    <option value="student" <?= set_value('role') === 'student' ? 'selected' : '' ?>>Student</option>
-                </select>
-            </div>
+          
 
             <button type="submit" class="btn btn-secondary w-100 mb-3">Login</button>
         </form>
