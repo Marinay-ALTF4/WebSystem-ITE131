@@ -7,6 +7,7 @@ use CodeIgniter\Controller;
 
 class Auth extends Controller
 {
+
     public function register()
     {
             helper(['form']);
