@@ -9,7 +9,6 @@
 </head>
 <body class="bg-light">
 
-<!-- Add spacing for fixed navbar -->
 <div class="d-flex align-items-center justify-content-center min-vh-100" style="padding-top: 80px; padding-bottom: 40px;">
     <div class="card shadow-sm p-3 border border-dark" style="max-width: 380px; width: 100%; background-color: #e9ecef;">
         <div class="card-body">
@@ -49,17 +48,7 @@
                     <label class="form-label small" style="color: #000000ff;">Confirm Password</label>
                     <input type="password" name="password_confirm" class="form-control form-control-sm" placeholder="Confirm your password" required>
                 </div>
-
-                <div class="mb-3">
-                    <label class="form-label small" style="color: #000000ff;">Role</label>
-                    <select name="role" class="form-select form-select-sm" required>
-                        <option value="" disabled <?= set_value('role') ? '' : 'selected' ?>>Select role</option>
-                        <option value="admin" <?= set_value('role') === 'admin' ? 'selected' : '' ?>>Admin</option>
-                        <option value="teacher" <?= set_value('role') === 'teacher' ? 'selected' : '' ?>>Teacher</option>
-                        <option value="student" <?= set_value('role') === 'student' ? 'selected' : '' ?>>Student</option>
-                    </select>
-                </div>
-
+                
                 <button type="submit" class="btn btn-secondary btn-sm w-100 mb-2">Register</button>
             </form>
 
