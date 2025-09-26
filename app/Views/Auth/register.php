@@ -10,7 +10,7 @@
 <body class="bg-light">
 
 <div class="d-flex align-items-center justify-content-center min-vh-100" style="padding-top: 80px; padding-bottom: 40px;">
-    <div class="card shadow-sm p-3 border border-dark" style="max-width: 380px; width: 100%; background-color: #e9ecef;">
+    <div class="card shadow-sm p-4 border border-dark" style="max-width: 380px; width: 100%; background-color: #e9ecef;">
         <div class="card-body">
             <h4 class="card-title text-center mb-3" style="color: #000000ff;">Sign Up</h4>
 

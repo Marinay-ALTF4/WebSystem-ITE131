@@ -17,9 +17,9 @@
       Have questions or need assistance? Reach out to us via email, phone, or visit our office.
     </p>
     <p style="color: #000000ff;">
-      Email: info@ite311.com <br>
-      Phone: +63 912 345 6789 <br>
-      Address: 123 Code Street, Manila, Philippines
+      Email: ITE311-MARINAY@gmail.com <br>
+      Phone: +63 999 999 9999 <br>
+      Address: 123 Dira ras gilid, Kanto, Philippines
     </p>
   </div>
 </div>

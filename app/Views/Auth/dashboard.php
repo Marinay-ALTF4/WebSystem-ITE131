@@ -55,8 +55,8 @@
             <?php foreach ($data['students'] as $s): ?>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span><?= esc($s['name']) ?> (<?= esc($s['email']) ?>)</span>
-                <span class="badge bg-secondary">Student</span>
-              </li>
+                <span class="badge bg-primary">Student</span>
+                </li>
             <?php endforeach; ?>
           </ul>
         <?php else: ?>

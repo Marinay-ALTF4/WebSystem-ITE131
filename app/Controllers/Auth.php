@@ -29,7 +29,7 @@ class Auth extends Controller
                         'role'     => 'student' // Default role sa register
                     ]);
 
-                    return redirect()->to('/login')->with('success', 'Registration Success. Please proceed to login.');
+                    return redirect()->to('/login')->with('success', 'Registration Success. Proceed to login.');
                 } else {
                     return view('auth/register', ['validation' => $this->validator]);
                 }

@@ -9,7 +9,7 @@
 </head>
 <body class="bg-light d-flex align-items-center justify-content-center vh-100">
 
-<div class="card shadow p-4 border border-dark" style="max-width: 400px; width: 100%; background-color: #e9ecef;"> <!-- Gray card with black border -->
+<div class="card shadow p-4 border border-dark" style="max-width: 400px; width: 100%; background-color: #e9ecef;"> 
     <div class="card-body">
         <h3 class="card-title text-center mb-4" style="color: #000000ff;">Sign In</h3>
 
