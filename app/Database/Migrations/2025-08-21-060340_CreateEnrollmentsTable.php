@@ -25,12 +25,14 @@ class CreateEnrollmentsTable extends Migration
                 'constraint' => 5,
                 'unsigned'   => true,
             ],
-            'created_at' => [
-                'type' => 'DATETIME',
-                'null' => true,
-            ],
+			'enrollment_date' => [
+				'type' => 'DATETIME',
+				'null' => false,
+			],
         ]);
         $this->forge->addKey('id', true);
+		$this->forge->addForeignKey('user_id', 'users', 'id', 'CASCADE', 'CASCADE');
+		$this->forge->addForeignKey('course_id', 'courses', 'id', 'CASCADE', 'CASCADE');
         $this->forge->createTable('enrollments');
     }
 
