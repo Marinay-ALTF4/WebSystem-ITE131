@@ -39,6 +39,20 @@ if (getcwd() . DIRECTORY_SEPARATOR !== FCPATH) {
 
 /*
  *---------------------------------------------------------------
+ * PAG-PUGONG SA DIRECTORY TRAVERSAL
+ *---------------------------------------------------------------
+ * Kung ang URL naay `../` o `..\\`, i-redirect siya balik sa home.
+ */
+$requestUri = urldecode($_SERVER['REQUEST_URI'] ?? '');
+
+if (strpos($requestUri, '.../') !== false || strpos($requestUri, '...\\') !== false) {
+    // I-redirect sa homepage kung naay attempt nga mo-access og gawas sa folder
+    header('Location: /');
+    exit;
+}
+
+/*
+ *---------------------------------------------------------------
  * BOOTSTRAP THE APPLICATION
  *---------------------------------------------------------------
  * This process sets up the path constants, loads and registers
