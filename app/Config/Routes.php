@@ -26,3 +26,7 @@ use CodeIgniter\Router\RouteCollection;
         $routes->get('teacher/dashboard', 'Auth::teacherDashboard');
         $routes->get('student/dashboard', 'Auth::studentDashboard');
 
+        // Courses
+        $routes->post('courses/enroll', 'Course::enroll');
+        $routes->get('/studentCourse', 'Auth::studentCourse');
+

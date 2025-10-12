@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\UserModel; 
+use App\Models\EnrollmentModel;
 use CodeIgniter\Controller;
 
 class Auth extends Controller
@@ -125,4 +126,38 @@ class Auth extends Controller
         'data' => $data,
     ]); 
 }
+
+public function studentCourse()
+{
+    $session = session();
+
+    if (! $session->get('isLoggedIn')) {
+        return redirect()->to(base_url('login'))->with('login_error', 'Please log in first.');
+    }
+
+    $role = strtolower((string) $session->get('role'));
+
+    // Only students can access My Courses
+    if ($role !== 'student') {
+        return redirect()->to(base_url('dashboard'))->with('error', 'Access denied.');
+    }
+
+    $userModel = new UserModel();
+    $enrollmentModel = new EnrollmentModel();
+
+    // Load courses for "My Courses" sections
+    $enrolled = $enrollmentModel->getUserEnrollments((int) $session->get('userID'));
+    $available = $enrollmentModel->getAvailableCoursesForUser((int) $session->get('userID'));
+
+    $data = [
+        'enrolledCourses' => $enrolled,
+        'availableCourses' => $available,
+    ];
+
+    return view('auth/studentCourse', [
+        'role' => $role,
+        'data' => $data,
+    ]);
+}
+
 }
