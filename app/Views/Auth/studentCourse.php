@@ -4,21 +4,21 @@
   <meta charset="UTF-8">
   <title>My Courses</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- ✅ Bootstrap 5 CSS -->
+  <!--  Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body class="bg-light">
 
-  <!-- ✅ Include header template -->
+  <!--  Include header template -->
   <?php include('app/Views/templates/header.php'); ?>
 
-  <!-- ✅ Main courses container -->
+  <!--  Main courses container -->
   <div class="d-flex justify-content-center align-items-start mt-5">
     <div class="card shadow p-4 border border-dark" style="max-width: 1000px; width: 100%; background-color: #e9ecef;">
       <div class="card-body">
 
-        <!-- ✅ Page title -->
+        <!--  Page title -->
         <h3 class="card-title mb-4 text-dark">
           My Courses
         </h3>
@@ -29,11 +29,11 @@
 
         <hr>
 
-        <!-- ✅ Enrollment Alert -->
+        <!--  Enrollment Alert -->
         <div id="enroll-alert" class="mb-3"></div>
 
         <div class="row g-4">
-          <!-- ✅ Enrolled Courses -->
+          <!--  Enrolled Courses -->
           <div class="col-12 col-lg-6">
             <div class="card shadow-sm">
               <div class="card-header fw-bold">Enrolled Courses</div>
@@ -57,7 +57,7 @@
             </div>
           </div>
 
-          <!-- ✅ Available Courses -->
+          <!--  Available Courses -->
           <div class="col-12 col-lg-6">
             <div class="card shadow-sm">
               <div class="card-header fw-bold">Available Courses</div>
@@ -70,7 +70,7 @@
                           <div class="fw-semibold"><?= esc($course['title']) ?></div>
                           <small class="text-muted"><?= esc($course['description']) ?></small>
                         </div>
-                        <!-- ✅ Enroll button with course ID -->
+                        <!--  Enroll button with course ID -->
                         <button class="btn btn-primary btn-sm enroll-btn"
                                 data-course-id="<?= (int)$course['id'] ?>">Enroll</button>
                       </div>
@@ -87,7 +87,7 @@
     </div>
   </div>
 
-  <!-- ✅ jQuery and Bootstrap JS -->
+          <!--  jQuery and Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -96,25 +96,25 @@
   =============================== -->
   <script>
   $(function () {
-    // 🔹 Listen for clicks on any "Enroll" button
+        //  Listen for clicks on any "Enroll" button
     $('#available-courses').on('click', '.enroll-btn', function (e) {
       e.preventDefault(); // stop page reload
 
       var $btn = $(this);
       var courseId = $btn.data('course-id'); // get the course ID
 
-      // 🔹 Send AJAX POST request to enroll endpoint
+      //  Send AJAX POST request to enroll endpoint
       $.post('<?= base_url('courses/enroll') ?>', { 
         course_id: courseId,
         <?= csrf_token() ?>: '<?= csrf_hash() ?>'
       })
         .done(function (data) {
-          // 🔹 Prepare alert message
+          //  Prepare alert message
           var message = (data && data.message) ? data.message :
                         (data.success ? 'Enrolled successfully.' : 'Enrollment failed.');
           var alertClass = (data && data.success) ? 'alert-success' : 'alert-danger';
 
-          // 🔹 Show alert message
+          //  Show alert message
           $('#enroll-alert').html(
             '<div class="alert ' + alertClass + ' alert-dismissible fade show" role="alert">' +
               message +
@@ -122,7 +122,7 @@
             '</div>'
           );
 
-          // 🔹 If enrollment was successful
+          //  If enrollment was successful
           if (data && data.success) {
             // Disable the button
             $btn.prop('disabled', true).text('Enrolled');
