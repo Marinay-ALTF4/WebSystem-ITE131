@@ -29,4 +29,15 @@ use CodeIgniter\Router\RouteCollection;
         // Courses
         $routes->post('courses/enroll', 'Course::enroll');
         $routes->get('/studentCourse', 'Auth::studentCourse');
+      
 
+        // Materials, File upload and download
+        
+        $routes->get('teacher/course/(:num)/upload', 'Materials::upload/$1');
+        $routes->post('teacher/course/(:num)/upload', 'Materials::upload/$1');
+        $routes->get('/materials/delete/(:num)', 'Materials::delete/$1');      
+        $routes->get('/materials/download/(:num)', 'Materials::download/$1');
+
+
+
+        

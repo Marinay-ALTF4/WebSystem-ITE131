@@ -14,20 +14,32 @@
     <div class="collapse navbar-collapse" id="navbarNav">
     
       <ul class="navbar-nav me-auto">
+
+
+
+
         <?php if ($role === 'admin'): ?>
           <li class="nav-item">
             <a class="nav-link border rounded px-3 py-1 ms-2 text-white hover-gray" href="<?= base_url('dashboard') ?>">Dashboard</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link border rounded px-3 py-1 ms-2 text-white hover-gray" href="#">User Management</a>
+            <a class="nav-link border rounded px-3 py-1 ms-2 text-white hover-gray" href= "<?= base_url('upload')?>">File Upload </a>
           </li>
+
+
+
         <?php elseif ($role === 'teacher'): ?>
           <li class="nav-item">
             <a class="nav-link border rounded px-3 py-1 ms-2 text-white hover-gray" href="<?= base_url('dashboard') ?>">Dashboard</a>
           </li>
+          
           <li class="nav-item">
-            <a class="nav-link border rounded px-3 py-1 ms-2 text-white hover-gray" href="#">My Classes</a>
+            <a class="nav-link border rounded px-3 py-1 ms-2 text-white hover-gray" href= "<?= base_url('upload')?>">File Upload </a>
           </li>
+
+
+
+
         <?php elseif ($role === 'student'): ?>
           <li class="nav-item">
             <a class="nav-link border rounded px-3 py-1 ms-2 text-white hover-gray" href="<?= base_url('dashboard') ?>">Dashboard</a>
