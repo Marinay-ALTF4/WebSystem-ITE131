@@ -12,53 +12,50 @@ class Materials extends Controller
     // STEP 4: FILE UPLOAD FUNCTION
    
     public function upload($course_id)
-    {
-        helper(['form', 'url']);
-        $materialModel = new MaterialModel();
-    
-        if ($this->request->getMethod() === 'post') {
-            // Validate file
-            $validationRule = [
-                'material_file' => [
-                    'label' => 'Material File',
-                    'rules' => 'uploaded[material_file]'
-                             . '|ext_in[material_file,pdf,doc,docx,ppt,pptx,jpg,png,mp4,zip]'
-                             . '|max_size[material_file,5120]', // 5MB
-                ],
-            ];
-    
-            if (!$this->validate($validationRule)) {
-                return redirect()->back()->with('error', $this->validator->getErrors());
-            }
-    
-            $file = $this->request->getFile('material_file');
-    
-            if ($file && $file->isValid() && !$file->hasMoved()) {
-                $newName = $file->getRandomName();
-                $uploadPath = FCPATH . 'uploads/materials/';
-    
-                if (!is_dir($uploadPath)) mkdir($uploadPath, 0777, true);
-    
-                $file->move($uploadPath, $newName);
-    
-                $materialModel->insert([
-                    'course_id' => $course_id,
-                    'file_name' => $file->getClientName(),
-                    'file_path' => 'uploads/materials/' . $newName,
-                    'created_at' => date('Y-m-d H:i:s'),
-                ]);
-    
-                return redirect()->back()->with('success', 'Material uploaded successfully!');
-            } else {
-                return redirect()->back()->with('error', 'File upload failed.');
-            }
-        }
-    
-        // GET request: show upload form
-        return view('Materials/upload', ['course_id' => $course_id]);
+{
+    helper(['form', 'url']);
+    $materialModel = new MaterialModel();
 
+    if ($this->request->getMethod() === 'post') {
+        // File validation
+        $validationRule = [
+            'material_file' => [
+                'label' => 'Material File',
+                'rules' => 'uploaded[material_file]|ext_in[material_file,pdf,doc,docx,ppt,pptx,jpg,png,mp4,zip]|max_size[material_file,5120]',
+            ],
+        ];
+
+        if (!$this->validate($validationRule)) {
+            return redirect()->back()->with('error', $this->validator->getErrors());
+        }
+
+        $file = $this->request->getFile('material_file');
+
+        if ($file && $file->isValid() && !$file->hasMoved()) {
+            $newName = $file->getRandomName();
+            $uploadPath = FCPATH . 'uploads/materials/';
+
+            if (!is_dir($uploadPath)) mkdir($uploadPath, 0777, true);
+
+            $file->move($uploadPath, $newName);
+
+            $materialModel->insert([
+                'course_id' => $course_id,
+                'file_name' => $file->getClientName(),
+                'file_path' => 'uploads/materials/' . $newName,
+                'created_at' => date('Y-m-d H:i:s'),
+            ]);
+
+            return redirect()->back()->with('success', 'Material uploaded successfully!');
+        } else {
+            return redirect()->back()->with('error', 'File upload failed.');
+        }
     }
-    
+
+    // GET request: show upload form
+    return view('Materials/upload', ['course_id' => $course_id]);
+}
+
         
     // DELETE MATERIAL (Admin/Teacher)
     
@@ -137,20 +134,20 @@ class Materials extends Controller
 
         
     // STUDENT DASHBOARD MATERIALS
-        // ===============================
+        
     public function studentDashboard()
     {
         $materialModel = new MaterialModel();
-        $course_id = session()->get('course_id'); // depende sa imong session
-
-        $data['materials'] = $materialModel->getMaterialsByCourse($course_id);
+        $course_id = session()->get('course_id');
+    
+        $data['materials'] = $materialModel->where('course_id', $course_id)->findAll();
         $data['profile'] = [
             'name' => session()->get('name'),
             'email' => session()->get('email'),
             'course_id' => $course_id
         ];
         $data['role'] = 'student';
-
+    
         echo view('dashboard', ['data' => $data, 'role' => $data['role']]);
     }
-}
+}    

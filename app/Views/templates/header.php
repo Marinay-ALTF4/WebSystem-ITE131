@@ -23,7 +23,7 @@
             <a class="nav-link border rounded px-3 py-1 ms-2 text-white hover-gray" href="<?= base_url('dashboard') ?>">Dashboard</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link border rounded px-3 py-1 ms-2 text-white hover-gray" href= "<?= base_url('upload')?>">File Upload </a>
+            <a class="nav-link border rounded px-3 py-1 ms-2 text-white hover-gray" href= "<?= base_url('Materials/upload')?>">File Upload </a>
           </li>
 
 

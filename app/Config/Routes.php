@@ -29,15 +29,21 @@ use CodeIgniter\Router\RouteCollection;
         // Courses
         $routes->post('courses/enroll', 'Course::enroll');
         $routes->get('/studentCourse', 'Auth::studentCourse');
+        // $routes->get('Materials/upload', 'Materials::upload');
+
       
 
         // Materials, File upload and download
         
-        $routes->get('teacher/course/(:num)/upload', 'Materials::upload/$1');
-        $routes->post('teacher/course/(:num)/upload', 'Materials::upload/$1');
-        $routes->get('/materials/delete/(:num)', 'Materials::delete/$1');      
-        $routes->get('/materials/download/(:num)', 'Materials::download/$1');
+       // Teacher/Admin upload material
+    $routes->get('teacher/course/(:num)/upload', 'Materials::upload/$1');  // Show form
+    $routes->post('teacher/course/(:num)/upload', 'Materials::upload/$1'); // Handle upload
 
+    // Delete material
+    $routes->get('materials/delete/(:num)', 'Materials::delete/$1');
+
+    // Download material
+    $routes->get('materials/download/(:num)', 'Materials::download/$1');
 
 
         
