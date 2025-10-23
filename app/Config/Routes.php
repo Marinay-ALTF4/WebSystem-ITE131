@@ -35,12 +35,15 @@ use CodeIgniter\Router\RouteCollection;
 
         // Materials, File upload and download
         
-       // Teacher/Admin upload material
+
        // Materials routes
-$routes->get('materials/upload/(:num)', 'materials::upload/$1');   // For showing upload page
-$routes->post('materials/upload/(:num)', 'materials::upload/$1');  // For uploading files
-$routes->get('materials/delete/(:num)', 'materials::delete/$1');   // For deleting materials
-$routes->get('materials/download/(:num)', 'materials::download/$1'); // For downloading files
+       $routes->get('/admin/course/(:num)/upload', 'Materials::upload/$1');
+
+        $routes->post('/admin/course/(:num)/upload', 'Materials::upload/$1');
+
+        $routes->get('/materials/delete/(:num)', 'Materials::delete/$1');
+
+        $routes->get('/materials/download/(:num)', 'Materials::download/$1');
 
 
 
