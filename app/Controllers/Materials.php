@@ -12,7 +12,7 @@ class Materials extends BaseController
         helper(['form', 'url']);
         $materialModel = new MaterialModel();
 
-        if ($this->request->getMethod() === 'post') {
+        if ($this->request->getMethod() === 'POST') {
             $validationRule = [
                 'material_file' => [
                     'label' => 'Material File',

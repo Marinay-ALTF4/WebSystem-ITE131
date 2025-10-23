@@ -4,51 +4,43 @@
   <meta charset="UTF-8">
   <title>Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta content="authenticity_token" name="csrf-param" />
-<meta content="4sWPhTlJAmt1IcyNq1FCyivsAVhHqjiDCKRXOgOQock=" name="csrf-token" />
 
-  <!--  Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 
 <body class="bg-light">
 
-  <!--  Include header template -->
+  <!-- Header -->
   <?php include('app/Views/templates/header.php'); ?>
 
-  <!--  Main dashboard container -->
-  <div class="d-flex justify-content-center align-items-start mt-5">
-    <div class="card shadow p-4 border border-dark" style="max-width: 800px; width: 100%; background-color: #e9ecef;">
+  <div class="container my-5">
+    <div class="card shadow-sm">
       <div class="card-body">
 
-        <!--  Welcome message -->
-        <h3 class="card-title mb-4 text-dark">
-          Welcome <?= esc($role ?? (session()->get('role') ?? 'User')) ?>!
-        </h3>
+        <?php $role = $role ?? session()->get('role'); ?>
 
-        <p class="text-dark">
-          Hello, <?= session()->get('name') ?? 'User' ?>! Welcome to your dashboard.
-          Here you can get an overview of the platform, manage your tasks efficiently,
-          and explore features to help you track progress.
-        </p>
-
+        <!-- Welcome -->
+        <h3 class="mb-3"><i class="bi bi-person-circle me-2"></i>Welcome, <?= esc(session()->get('name') ?? 'User') ?>!</h3>
+        <p class="text-muted mb-4">Role: <strong><?= esc($role ?? 'User') ?></strong></p>
         <hr>
 
-        <?php if (($role ?? '') === 'admin'): ?>
+        <!-- ================= ADMIN DASHBOARD ================= -->
+        <?php if ($role === 'admin'): ?>
+          <h4 class="mb-3"><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</h4>
 
-          <!-- ADMIN SECTION -->
-          <h5 class="mb-3 text-dark">Admin Overview</h5>
-          <p class="text-dark mb-2">
-            Total users:
-            <strong><?= isset($data['usersCount']) ? (int) $data['usersCount'] : 0 ?></strong>
-          </p>
+          <p>Total Users: <strong><?= isset($data['usersCount']) ? (int)$data['usersCount'] : 0 ?></strong></p>
 
           <?php if (!empty($data['recentUsers'])): ?>
-            <div class="table-responsive">
-              <table class="table table-sm table-striped table-bordered">
-                <thead>
+            <div class="table-responsive mt-3">
+              <table class="table table-striped table-bordered align-middle">
+                <thead class="table-primary">
                   <tr>
-                    <th>ID</th><th>Name</th><th>Email</th><th>Role</th>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -64,34 +56,109 @@
               </table>
             </div>
           <?php else: ?>
-            <p class="text-dark">No recent users found.</p>
+            <p class="text-muted">No users found.</p>
           <?php endif; ?>
 
-        <?php elseif (($role ?? '') === 'teacher'): ?>
+          <hr>
+          <h4 class="card-title mb-3">Available Courses</h4>
 
-          <!-- TEACHER SECTION -->
-          <h5 class="mb-3 text-dark">My Students</h5>
+          <?php if (!empty($data['courses'])): ?>
+            <div class="list-group">
+              <?php foreach ($data['courses'] as $course): ?>
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <h5 class="mb-1"><?= esc($course['title']); ?></h5>
+                    <p class="text-muted mb-0"><?= esc($course['description']); ?></p>
+                  </div>
+                  <div>
+                    <a href="<?= base_url('admin/course/' . $course['id'] . '/upload'); ?>" 
+                      class="btn btn-primary btn-sm rounded-pill">
+                      Add Material
+                    </a>
+                  </div>
+                </div>
+              <?php endforeach; ?>
+            </div>
+          <?php else: ?>
+            <p class="text-muted text-center mt-3">No courses found.</p>
+          <?php endif; ?>
 
+        <!-- ================= TEACHER DASHBOARD ================= -->
+        <?php elseif ($role === 'teacher'): ?>
+          <h4 class="mb-3"><i class="bi bi-journal-text me-2"></i>Teacher Dashboard</h4>
+
+          <h5>My Students</h5>
           <?php if (!empty($data['students'])): ?>
-            <ul class="list-group">
+            <ul class="list-group mt-3 mb-4">
               <?php foreach ($data['students'] as $s): ?>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <span><?= esc($s['name']) ?> (<?= esc($s['email']) ?>)</span>
-                  <span class="badge bg-primary">Student</span>
+                  <?= esc($s['name']) ?>
+                  <span class="badge bg-secondary">Student</span>
                 </li>
               <?php endforeach; ?>
             </ul>
           <?php else: ?>
-            <p class="text-dark">No students to display.</p>
+            <p class="text-muted">No students assigned yet.</p>
           <?php endif; ?>
 
+          <hr>
+          <h4 class="card-title mb-3">My Courses</h4>
+
+          <?php if (!empty($data['courses'])): ?>
+            <div class="list-group">
+              <?php foreach ($data['courses'] as $course): ?>
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <h5 class="mb-1"><?= esc($course['title']); ?></h5>
+                    <p class="text-muted mb-0"><?= esc($course['description']); ?></p>
+                  </div>
+                  <div>
+                    <a href="<?= base_url('admin/course/' . $course['id'] . '/upload'); ?>" 
+                      class="btn btn-primary btn-sm rounded-pill">
+                      Add Material
+                    </a>
+                  </div>
+                </div>
+              <?php endforeach; ?>
+            </div>
+          <?php else: ?>
+            <p class="text-muted text-center mt-3">No courses assigned yet.</p>
+          <?php endif; ?>
+
+          <?php if (!empty($data['materials'])): ?>
+            <div class="mt-4">
+              <h5><i class="bi bi-folder2-open me-2"></i>Uploaded Materials</h5>
+              <table class="table table-bordered table-striped mt-3">
+                <thead class="table-secondary">
+                  <tr><th>#</th><th>File Name</th><th>Action</th></tr>
+                </thead>
+                <tbody>
+                  <?php foreach ($data['materials'] as $index => $mat): ?>
+                    <tr>
+                      <td><?= $index + 1 ?></td>
+                      <td><?= esc($mat['file_name']) ?></td>
+                      <td>
+                        <a href="<?= site_url('materials/delete/' . $mat['id']) ?>" 
+                          class="btn btn-danger btn-sm" 
+                          onclick="return confirm('Delete this file?')">
+                          <i class="bi bi-trash"></i> Delete
+                        </a>
+                      </td>
+                    </tr>
+                  <?php endforeach; ?>
+                </tbody>
+              </table>
+            </div>
+          <?php endif; ?>
+
+        <!-- ================= STUDENT DASHBOARD ================= -->
         <?php else: ?>
+          <h4 class="mb-3"><i class="bi bi-book me-2"></i>Student Dashboard</h4>
 
-          <!-- STUDENT SECTION -->
-          <h5 class="mb-3 text-dark">My Profile</h5>
-
+          <!-- Student Profile -->
+          <h5><i class="bi bi-person-badge me-2"></i>My Profile</h5>
           <?php if (!empty($data['profile'])): ?>
-            <div class="row g-3 mb-4">
+            <div class="row g-3 mb-4 mt-2">
               <div class="col-md-6">
                 <div class="p-3 border rounded bg-white">Name: <strong><?= esc($data['profile']['name']) ?></strong></div>
               </div>
@@ -99,51 +166,69 @@
                 <div class="p-3 border rounded bg-white">Email: <strong><?= esc($data['profile']['email']) ?></strong></div>
               </div>
               <div class="col-md-6">
-                <div class="p-3 border rounded bg-white">Role: <strong><?= esc($role ?? 'student') ?></strong></div>
+                <div class="p-3 border rounded bg-white">Course: <strong><?= esc($data['profile']['course_name'] ?? 'N/A') ?></strong></div>
               </div>
             </div>
-          <?php else: ?>
-            <p class="text-dark">Profile not available.</p>
           <?php endif; ?>
 
-          <!-- STUDENT MATERIALS SECTION -->
-          <h5 class="mb-3 text-dark">Course Materials</h5>
+          <hr>
 
-          <?php if (!empty($data['materials'])): ?>
-            <table class="table table-bordered table-striped bg-white">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>File Name</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <?php foreach ($data['materials'] as $index => $mat): ?>
-                  <tr>
-                    <td><?= $index + 1 ?></td>
-                    <td><?= esc($mat['file_name']) ?></td>
-                    <td>
-                      <a href="<?= site_url('materials/download/' . $mat['id']) ?>" class="btn btn-success btn-sm">
-                        Download
-                      </a>
-                    </td>
-                  </tr>
-                <?php endforeach; ?>
-              </tbody>
-            </table>
+          <!-- Course Materials -->
+          <h5><i class="bi bi-file-earmark-arrow-down me-2"></i>Course Materials</h5>
+
+          <?php if (!empty($data['materials']) && !empty($data['courses'])): ?>
+            <div class="accordion mt-3" id="materialsAccordion">
+              <?php foreach ($data['courses'] as $course): ?>
+                <?php
+                  $courseMaterials = array_filter($data['materials'], function($mat) use ($course) {
+                    return $mat['course_id'] == $course['id'];
+                  });
+                ?>
+
+                <?php if (!empty($courseMaterials)): ?>
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading<?= $course['id'] ?>">
+                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<?= $course['id'] ?>" aria-expanded="false" aria-controls="collapse<?= $course['id'] ?>">
+                        <?= esc($course['title']); ?>
+                      </button>
+                    </h2>
+                    <div id="collapse<?= $course['id'] ?>" class="accordion-collapse collapse" aria-labelledby="heading<?= $course['id'] ?>" data-bs-parent="#materialsAccordion">
+                      <div class="accordion-body">
+                        <table class="table table-bordered table-hover bg-white mt-2">
+                          <thead class="table-primary">
+                            <tr><th>#</th><th>File Name</th><th>Action</th></tr>
+                          </thead>
+                          <tbody>
+                            <?php $index = 1; foreach ($courseMaterials as $mat): ?>
+                              <tr>
+                                <td><?= $index++ ?></td>
+                                <td><?= esc($mat['file_name']) ?></td>
+                                <td>
+                                  <a href="<?= site_url('materials/download/' . $mat['id']) ?>" 
+                                    class="btn btn-primary btn-sm">
+                                    <i class="bi bi-download"></i> Download
+                                  </a>
+                                </td>
+                              </tr>
+                            <?php endforeach; ?>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                <?php endif; ?>
+              <?php endforeach; ?>
+            </div>
           <?php else: ?>
-            <p class="text-dark">No materials available for your course yet.</p>
+            <p class="text-muted mt-3">No materials available yet.</p>
           <?php endif; ?>
-
         <?php endif; ?>
 
       </div>
     </div>
   </div>
 
-  <!--  jQuery and Bootstrap JS -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

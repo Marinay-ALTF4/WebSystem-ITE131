@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\UserModel; 
 use App\Models\EnrollmentModel;
 use CodeIgniter\Controller;
+use App\Models\CourseModel;
 
 class Auth extends Controller
 {
@@ -91,41 +92,50 @@ class Auth extends Controller
 
 
 
-  public function dashboard()
-{
-    $session = session();
-
-    if (! $session->get('isLoggedIn')) {
-        return redirect()->to(base_url('login'))->with('login_error', 'Please log in first.');
+    public function dashboard()
+    {
+        $session = session();
+    
+        if (! $session->get('isLoggedIn')) {
+            return redirect()->to(base_url('login'))->with('login_error', 'Please log in first.');
+        }
+    
+        $role = strtolower((string) $session->get('role'));
+    
+        $userModel = new UserModel();
+        $courseModel = new \App\Models\CourseModel(); // ✅ Load CourseModel
+    
+        $data = [];
+    
+        switch ($role) {
+            case 'admin':
+                $data['usersCount'] = $userModel->countAllResults();
+                $data['recentUsers'] = $userModel->orderBy('id', 'DESC')->limit(5)->find();
+                $data['courses'] = $courseModel->findAll(); // ✅ Add this line
+                break;
+    
+            case 'teacher':
+                $data['students'] = $userModel->where('role', 'student')->findAll();
+                $data['courses'] = $courseModel->findAll(); // ✅ Add this line
+                break;
+    
+                case 'student':
+                    default:
+                        $data['profile'] = $userModel->find((int) $session->get('userID'));
+                        $data['courses'] = $courseModel->findAll();
+                    
+                        
+                        $materialModel = new \App\Models\MaterialModel();
+                        $data['materials'] = $materialModel->findAll();
+                        break;
+                }
+    
+        return view('auth/dashboard', [
+            'role' => $role,
+            'data' => $data,
+        ]);
     }
-
-    $role = strtolower((string) $session->get('role'));
-
-    $userModel = new UserModel();
-    $data = [];
-
-    switch ($role) {
-        case 'admin':
-            $data['usersCount'] = $userModel->countAllResults();
-            $data['recentUsers'] = $userModel
-                ->orderBy('id', 'DESC')
-                ->limit(5)
-                ->find();
-            break;
-        case 'teacher':
-            $data['students'] = $userModel->where('role', 'student')->findAll();
-            break;
-        case 'student':
-        default:
-            $data['profile'] = $userModel->find((int) $session->get('userID'));
-            break;
-    }
-
-    return view('auth/dashboard', [
-        'role' => $role,
-        'data' => $data,
-    ]); 
-}
+    
 
 public function studentCourse()
 {
