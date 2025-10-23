@@ -14,9 +14,11 @@ class Materials extends BaseController
         if (! $session->get('isLoggedIn')) {
             return redirect()->to('/login')->with('error', 'Please log in first.');
         }
-
+    
         $materialModel = new MaterialModel();
-
+        $notificationModel = new \App\Models\NotificationModel(); // Added notification model
+        $enrollmentModel = new EnrollmentModel(); // To get enrolled students
+    
         if ($this->request->getMethod() === 'POST') {
             $validationRule = [
                 'material_file' => [
@@ -24,37 +26,49 @@ class Materials extends BaseController
                     'rules' => 'uploaded[material_file]|ext_in[material_file,pdf,doc,docx,ppt,pptx,jpg,png,mp4,zip]|max_size[material_file,5120]',
                 ],
             ];
-
+    
             if (!$this->validate($validationRule)) {
                 return redirect()->back()->with('error', $this->validator->getErrors());
             }
-
+    
             $file = $this->request->getFile('material_file');
             if ($file && $file->isValid() && !$file->hasMoved()) {
                 $newName = $file->getRandomName();
                 $uploadPath = FCPATH . 'uploads/materials/';
-
+    
                 if (!is_dir($uploadPath)) mkdir($uploadPath, 0777, true);
-
+    
                 $file->move($uploadPath, $newName);
-
+    
                 $materialModel->insert([
                     'course_id' => $course_id,
                     'file_name' => $file->getClientName(),
                     'file_path' => 'uploads/materials/' . $newName,
                     'created_at' => date('Y-m-d H:i:s'),
                 ]);
-
-                return redirect()->back()->with('success', 'Material uploaded successfully!');
+    
+                // ===== Notification logic =====
+                $students = $enrollmentModel->where('course_id', $course_id)->findAll();
+                foreach ($students as $student) {
+                    $notificationModel->insert([
+                        'user_id' => $student['user_id'], // use the user_id from enrollment table
+                        'message' => 'New material uploaded in your course.',
+                        'is_read' => 0,
+                        'created_at' => date('Y-m-d H:i:s')
+                    ]);
+                }
+                // ==============================
+    
+                return redirect()->back()->with('success', 'Material uploaded successfully and students notified!');
             } else {
                 return redirect()->back()->with('error', 'File upload failed.');
             }
         }
-
+    
         $materials = $materialModel->where('course_id', $course_id)->findAll();
         return view('materials/upload', ['course_id' => $course_id, 'materials' => $materials]);
     }
-
+    
     public function delete($material_id)
     {
         $session = session();

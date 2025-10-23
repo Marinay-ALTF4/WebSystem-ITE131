@@ -8,6 +8,7 @@ use CodeIgniter\HTTP\IncomingRequest;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use App\Models\NotificationModel; // added to fetch notifications
 
 /**
  * Class BaseController
@@ -43,6 +44,10 @@ abstract class BaseController extends Controller
      */
     // protected $session;
 
+    // Added properties for session and notifications
+    protected $session;
+    protected $notificationCount = 0;
+
     /**
      * @return void
      */
@@ -54,5 +59,22 @@ abstract class BaseController extends Controller
         // Preload any models, libraries, etc, here.
 
         // E.g.: $this->session = service('session');
+        $this->session = session();
+
+        // Fetch unread notifications if user is logged in
+        if ($this->session->get('isLoggedIn')) {
+            $notificationModel = new NotificationModel();
+            // Make sure your session key matches login (userID or user_id)
+            $this->notificationCount = $notificationModel->getUnreadCount($this->session->get('userID'));
+        }
+    }
+
+    /**
+     * Optional helper to load view with notifications count
+     */
+    public function displayNotif(string $view, array $data = []): string
+    {
+        $data['notificationCount'] = $this->notificationCount;
+        return view('templates/header', $data) . view($view, $data);
     }
 }

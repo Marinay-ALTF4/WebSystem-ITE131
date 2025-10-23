@@ -93,60 +93,64 @@ class Auth extends Controller
 
 
     public function dashboard()
-    {
-        $session = session();
-    
-        if (! $session->get('isLoggedIn')) {
-            return redirect()->to(base_url('login'))->with('login_error', 'Please log in first.');
-        }
-    
-        $role = strtolower((string) $session->get('role'));
-    
-        $userModel = new UserModel();
-        $courseModel = new \App\Models\CourseModel(); 
-    
-        $data = [];
-    
-        switch ($role) {
-            case 'admin':
-                $data['usersCount'] = $userModel->countAllResults();
-                $data['recentUsers'] = $userModel->orderBy('id', 'DESC')->limit(5)->find();
-                $data['courses'] = $courseModel->findAll(); 
-                break;
-    
-            case 'teacher':
-                $data['students'] = $userModel->where('role', 'student')->findAll();
-                $data['courses'] = $courseModel->findAll(); 
-                break;
-    
-                case 'student':
-                    default:
-                        $userId = (int) $session->get('userID');
-                        
-                        // Profile
-                        $data['profile'] = $userModel->find($userId);
-                    
-                        // Enrolled courses
-                        $enrollmentModel = new EnrollmentModel();
-                        $data['courses'] = $enrollmentModel->getUserEnrollments($userId); // Only the courses the student is enrolled in
-                    
-                        // Materials for the student's courses
-                        $materialModel = new \App\Models\MaterialModel();
-                        $data['materials'] = [];
-                    
-                        foreach ($data['courses'] as $course) {
-                            $courseMaterials = $materialModel->where('course_id', $course['course_id'])->findAll();
-                            $data['materials'] = array_merge($data['materials'], $courseMaterials);
-                        }
-                        break;
-                    
-                }
-    
-        return view('auth/dashboard', [
-            'role' => $role,
-            'data' => $data,
-        ]);
+{
+    $session = session();
+
+    if (! $session->get('isLoggedIn')) {
+        return redirect()->to(base_url('login'))->with('login_error', 'Please log in first.');
     }
+
+    $role = strtolower((string) $session->get('role'));
+
+    $userModel = new UserModel();
+    $courseModel = new \App\Models\CourseModel(); 
+    $notificationModel = new \App\Models\NotificationModel();
+
+    $data = [
+        'notifications' => $notificationModel->getNotificationsForUser((int)$session->get('userID'))
+    ];
+
+    switch ($role) {
+        case 'admin':
+            $data['usersCount'] = $userModel->countAllResults();
+            $data['recentUsers'] = $userModel->orderBy('id', 'DESC')->limit(5)->find();
+            $data['courses'] = $courseModel->findAll(); 
+            break;
+
+        case 'teacher':
+            $data['students'] = $userModel->where('role', 'student')->findAll();
+            $data['courses'] = $courseModel->findAll(); 
+            break;
+
+        case 'student':
+        default:
+            $userId = (int) $session->get('userID');
+            
+            // Profile
+            $data['profile'] = $userModel->find($userId);
+        
+            // Enrolled courses
+            $enrollmentModel = new EnrollmentModel();
+            $data['courses'] = $enrollmentModel->getUserEnrollments($userId);
+        
+            // Materials for the student's courses
+            $materialModel = new \App\Models\MaterialModel();
+            $data['materials'] = [];
+
+            foreach ($data['courses'] as $course) {
+                $courseMaterials = $materialModel->where('course_id', $course['course_id'])->findAll();
+                $data['materials'] = array_merge($data['materials'], $courseMaterials);
+            }
+            break;
+    }
+
+    return view('auth/dashboard', [
+        'role' => $role,
+        'data' => $data,
+    ]);
+}
+
+    
     
 
 public function studentCourse()
@@ -159,21 +163,19 @@ public function studentCourse()
 
     $role = strtolower((string) $session->get('role'));
 
-    // Only students can access My Courses
     if ($role !== 'student') {
         return redirect()->to(base_url('dashboard'))->with('error', 'Access denied.');
     }
 
+    $userId = (int)$session->get('userID');
     $userModel = new UserModel();
     $enrollmentModel = new EnrollmentModel();
-
-    // Load courses for "My Courses" sections
-    $enrolled = $enrollmentModel->getUserEnrollments((int) $session->get('userID'));
-    $available = $enrollmentModel->getAvailableCoursesForUser((int) $session->get('userID'));
+    $notificationModel = new \App\Models\NotificationModel();
 
     $data = [
-        'enrolledCourses' => $enrolled,
-        'availableCourses' => $available,
+        'enrolledCourses'  => $enrollmentModel->getUserEnrollments($userId),
+        'availableCourses' => $enrollmentModel->getAvailableCoursesForUser($userId),
+        'notifications'    => $notificationModel->getNotificationsForUser($userId)
     ];
 
     return view('auth/studentCourse', [
@@ -181,6 +183,7 @@ public function studentCourse()
         'data' => $data,
     ]);
 }
+    
 public function addCourse()
 {
     $session = session();

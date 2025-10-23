@@ -32,12 +32,6 @@ use CodeIgniter\Router\RouteCollection;
         $routes->post('teacher/course/add', 'Auth::addCourse');
 
 
-
-      
-
-        // Materials, File upload and download
-        
-
        // Materials routes
        $routes->get('/admin/course/(:num)/upload', 'Materials::upload/$1');
 
@@ -46,6 +40,13 @@ use CodeIgniter\Router\RouteCollection;
         $routes->get('/materials/delete/(:num)', 'Materials::delete/$1');
 
         $routes->get('/materials/download/(:num)', 'Materials::download/$1');
+
+        // Notifications Lab 8
+        // Notifications
+$routes->get('/notifications', 'Notifications::get');
+$routes->get('/notifications/view', 'Notifications::view'); // ← shows notification.php
+$routes->post('/notifications/mark_read/(:num)', 'Notifications::mark_as_read/$1');
+
 
 
 
