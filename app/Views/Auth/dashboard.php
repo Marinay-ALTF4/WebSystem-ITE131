@@ -26,7 +26,7 @@
         <p class="text-muted mb-4">Role: <strong><?= esc($role ?? 'User') ?></strong></p>
         <hr>
 
-        <!-- ================= ADMIN DASHBOARD ================= -->
+        <!--  ADMIN DASHBOARD  -->
         <?php if ($role === 'admin'): ?>
           <h4 class="mb-3"><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</h4>
 
@@ -83,7 +83,7 @@
             <p class="text-muted text-center mt-3">No courses found.</p>
           <?php endif; ?>
 
-        <!-- ================= TEACHER DASHBOARD ================= -->
+        <!--  TEACHER DASHBOARD  -->
         <?php elseif ($role === 'teacher'): ?>
           <h4 class="mb-3"><i class="bi bi-journal-text me-2"></i>Teacher Dashboard</h4>
 
@@ -151,7 +151,7 @@
             </div>
           <?php endif; ?>
 
-        <!-- ================= STUDENT DASHBOARD ================= -->
+        <!--  STUDENT DASHBOARD  -->
         <?php else: ?>
           <h4 class="mb-3"><i class="bi bi-book me-2"></i>Student Dashboard</h4>
 

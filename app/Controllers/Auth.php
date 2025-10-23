@@ -103,7 +103,7 @@ class Auth extends Controller
         $role = strtolower((string) $session->get('role'));
     
         $userModel = new UserModel();
-        $courseModel = new \App\Models\CourseModel(); // ✅ Load CourseModel
+        $courseModel = new \App\Models\CourseModel(); 
     
         $data = [];
     
@@ -111,23 +111,35 @@ class Auth extends Controller
             case 'admin':
                 $data['usersCount'] = $userModel->countAllResults();
                 $data['recentUsers'] = $userModel->orderBy('id', 'DESC')->limit(5)->find();
-                $data['courses'] = $courseModel->findAll(); // ✅ Add this line
+                $data['courses'] = $courseModel->findAll(); 
                 break;
     
             case 'teacher':
                 $data['students'] = $userModel->where('role', 'student')->findAll();
-                $data['courses'] = $courseModel->findAll(); // ✅ Add this line
+                $data['courses'] = $courseModel->findAll(); 
                 break;
     
                 case 'student':
                     default:
-                        $data['profile'] = $userModel->find((int) $session->get('userID'));
-                        $data['courses'] = $courseModel->findAll();
-                    
+                        $userId = (int) $session->get('userID');
                         
+                        // Profile
+                        $data['profile'] = $userModel->find($userId);
+                    
+                        // Enrolled courses
+                        $enrollmentModel = new EnrollmentModel();
+                        $data['courses'] = $enrollmentModel->getUserEnrollments($userId); // Only the courses the student is enrolled in
+                    
+                        // Materials for the student's courses
                         $materialModel = new \App\Models\MaterialModel();
-                        $data['materials'] = $materialModel->findAll();
+                        $data['materials'] = [];
+                    
+                        foreach ($data['courses'] as $course) {
+                            $courseMaterials = $materialModel->where('course_id', $course['course_id'])->findAll();
+                            $data['materials'] = array_merge($data['materials'], $courseMaterials);
+                        }
                         break;
+                    
                 }
     
         return view('auth/dashboard', [

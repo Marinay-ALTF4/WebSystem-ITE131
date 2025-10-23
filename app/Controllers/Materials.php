@@ -10,6 +10,11 @@ class Materials extends BaseController
     public function upload($course_id)
     {
         helper(['form', 'url']);
+        $session = session();
+        if (! $session->get('isLoggedIn')) {
+            return redirect()->to('/login')->with('error', 'Please log in first.');
+        }
+
         $materialModel = new MaterialModel();
 
         if ($this->request->getMethod() === 'POST') {
@@ -33,7 +38,7 @@ class Materials extends BaseController
 
                 $file->move($uploadPath, $newName);
 
-                $materialModel->insertMaterial([
+                $materialModel->insert([
                     'course_id' => $course_id,
                     'file_name' => $file->getClientName(),
                     'file_path' => 'uploads/materials/' . $newName,
@@ -46,12 +51,17 @@ class Materials extends BaseController
             }
         }
 
-        $materials = $materialModel->getMaterialsByCourse($course_id);
+        $materials = $materialModel->where('course_id', $course_id)->findAll();
         return view('materials/upload', ['course_id' => $course_id, 'materials' => $materials]);
     }
 
     public function delete($material_id)
     {
+        $session = session();
+        if (! $session->get('isLoggedIn')) {
+            return redirect()->to('/login')->with('error', 'Please log in first.');
+        }
+
         $materialModel = new MaterialModel();
         $material = $materialModel->find($material_id);
 
@@ -69,28 +79,34 @@ class Materials extends BaseController
     public function download($material_id)
     {
         $session = session();
-        $user_id = $session->get('id');
-        $role = $session->get('role');
 
-        if (!$user_id) {
+        if (! $session->get('isLoggedIn')) {
             return redirect()->to('/login')->with('error', 'Please log in to download materials.');
         }
 
+        $user_id = $session->get('userID'); // Correct session variable
+        $role = $session->get('role');
+
         $materialModel = new MaterialModel();
         $material = $materialModel->find($material_id);
-        if (!$material) return redirect()->back()->with('error', 'Material not found.');
 
+        if (!$material) {
+            return redirect()->back()->with('error', 'Material not found.');
+        }
+
+        // If student, check enrollment
         if ($role === 'student') {
             $enrollmentModel = new EnrollmentModel();
             $isEnrolled = $enrollmentModel
-                ->where('student_id', $user_id)
+                ->where('user_id', $user_id)       // use user_id instead of student_id
                 ->where('course_id', $material['course_id'])
                 ->first();
-
+        
             if (!$isEnrolled) {
                 return redirect()->back()->with('error', 'You are not enrolled in this course.');
             }
         }
+        
 
         $filePath = FCPATH . $material['file_path'];
         if (file_exists($filePath)) {
