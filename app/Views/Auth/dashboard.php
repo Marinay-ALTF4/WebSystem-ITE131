@@ -125,6 +125,52 @@
             <p class="text-muted text-center mt-3">No courses assigned yet.</p>
           <?php endif; ?>
 
+
+<!-- ADD NEW COURSE FORM RANI INCASO -->
+
+ <!-- Add New Course Button -->
+<div class="text-center my-4">
+  <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCourseModal">
+    <i class="bi bi-plus-circle me-1"></i> Add New Course
+  </button>
+</div>
+
+<!-- Add Course Modal -->
+<div class="modal fade" id="addCourseModal" tabindex="-1" aria-labelledby="addCourseModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="<?= base_url('teacher/course/add') ?>" method="post">
+        <?= csrf_field() ?> <!--  Required for CI4 -->
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="addCourseModalLabel">Add New Course</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="title" class="form-label">Course Title</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="description" class="form-label">Course Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Course</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- END ADD NEW COURSE FORM -->
+
+
           <?php if (!empty($data['materials'])): ?>
             <div class="mt-4">
               <h5><i class="bi bi-folder2-open me-2"></i>Uploaded Materials</h5>

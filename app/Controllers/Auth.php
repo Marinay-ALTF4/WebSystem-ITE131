@@ -181,5 +181,25 @@ public function studentCourse()
         'data' => $data,
     ]);
 }
+public function addCourse()
+{
+    $session = session();
+    if (! $session->get('isLoggedIn') || strtolower($session->get('role')) !== 'teacher') {
+        return redirect()->to(base_url('dashboard'))->with('error', 'Access denied.');
+    }
+
+    $title = $this->request->getPost('title');
+    $description = $this->request->getPost('description');
+    $teacherId = $session->get('userID'); // fixed
+
+    $courseModel = new \App\Models\CourseModel();
+    $courseModel->save([
+        'title' => $title,
+        'description' => $description,
+        'teacher_id' => $teacherId
+    ]);
+
+    return redirect()->back()->with('success', 'Course added successfully.');
+}
 
 }

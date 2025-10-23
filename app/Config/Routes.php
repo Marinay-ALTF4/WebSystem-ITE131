@@ -29,7 +29,9 @@ use CodeIgniter\Router\RouteCollection;
         // Courses
         $routes->post('courses/enroll', 'Course::enroll');
         $routes->get('/studentCourse', 'Auth::studentCourse');
-        // $routes->get('Materials/upload', 'Materials::upload');
+        $routes->post('teacher/course/add', 'Auth::addCourse');
+
+
 
       
 
