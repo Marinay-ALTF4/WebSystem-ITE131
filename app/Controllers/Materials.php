@@ -48,14 +48,22 @@ class Materials extends BaseController
                 ]);
     
                 // ===== Notification logic =====
-                $students = $enrollmentModel->where('course_id', $course_id)->findAll();
-                foreach ($students as $student) {
-                    $notificationModel->insert([
-                        'user_id' => $student['user_id'], // use the user_id from enrollment table
-                        'message' => 'New material uploaded in your course.',
-                        'is_read' => 0,
-                        'created_at' => date('Y-m-d H:i:s')
-                    ]);
+                try {
+                    $courseModel = new \App\Models\CourseModel();
+                    $course = $courseModel->find($course_id);
+                    $courseTitle = $course ? $course['title'] : 'Course';
+                    
+                    $students = $enrollmentModel->where('course_id', $course_id)->findAll();
+                    
+                    foreach ($students as $student) {
+                        $notificationModel->createNotification(
+                            $student['user_id'],
+                            "New material uploaded in '{$courseTitle}'"
+                        );
+                    }
+                } catch (\Exception $e) {
+                    log_message('error', 'Failed to send material upload notifications: ' . $e->getMessage());
+                    // Continue even if notifications fail
                 }
                 // ==============================
     
@@ -65,7 +73,7 @@ class Materials extends BaseController
             }
         }
     
-        $materials = $materialModel->where('course_id', $course_id)->findAll();
+        $materials = $materialModel->getMaterialsByCourse($course_id);
         return view('materials/upload', ['course_id' => $course_id, 'materials' => $materials]);
     }
     
@@ -77,14 +85,21 @@ class Materials extends BaseController
         }
 
         $materialModel = new MaterialModel();
-        $material = $materialModel->find($material_id);
+        $material = $materialModel->getMaterialById($material_id);
 
         if ($material) {
-            $filePath = FCPATH . $material['file_path'];
-            if (file_exists($filePath)) unlink($filePath);
+            try {
+                $filePath = FCPATH . $material['file_path'];
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
 
-            $materialModel->delete($material_id);
-            return redirect()->back()->with('success', 'Material deleted successfully.');
+                $materialModel->deleteMaterial($material_id);
+                return redirect()->back()->with('success', 'Material deleted successfully.');
+            } catch (\Exception $e) {
+                log_message('error', 'Failed to delete material: ' . $e->getMessage());
+                return redirect()->back()->with('error', 'Failed to delete material.');
+            }
         } else {
             return redirect()->back()->with('error', 'Material not found.');
         }
@@ -102,7 +117,7 @@ class Materials extends BaseController
         $role = $session->get('role');
 
         $materialModel = new MaterialModel();
-        $material = $materialModel->find($material_id);
+        $material = $materialModel->getMaterialById($material_id);
 
         if (!$material) {
             return redirect()->back()->with('error', 'Material not found.');

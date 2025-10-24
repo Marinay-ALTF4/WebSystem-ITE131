@@ -63,14 +63,33 @@ abstract class BaseController extends Controller
 
         // Fetch unread notifications if user is logged in
         if ($this->session->get('isLoggedIn')) {
-            $notificationModel = new NotificationModel();
-            // Make sure your session key matches login (userID or user_id)
-            $this->notificationCount = $notificationModel->getUnreadCount($this->session->get('userID'));
+            try {
+                $notificationModel = new NotificationModel();
+                // Make sure your session key matches login (userID or user_id)
+                $userId = $this->session->get('userID');
+                if ($userId) {
+                    $this->notificationCount = $notificationModel->getUnreadCount($userId);
+                }
+            } catch (\Exception $e) {
+                // If notifications table doesn't exist or other error, set count to 0
+                log_message('error', 'Failed to load notification count: ' . $e->getMessage());
+                $this->notificationCount = 0;
+            }
         }
     }
 
     /**
-     * Optional helper to load view with notifications count
+     * Override the view method to automatically include notification data
+     */
+    protected function view(string $name, array $data = [], array $options = []): string
+    {
+        // Automatically add notification count to all views
+        $data['notificationCount'] = $this->notificationCount;
+        return view($name, $data, $options);
+    }
+
+    /**
+     * Optional helper to load view with notifications count (legacy method)
      */
     public function displayNotif(string $view, array $data = []): string
     {

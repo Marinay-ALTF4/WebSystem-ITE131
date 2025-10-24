@@ -56,15 +56,21 @@ class NotificationModel extends Model
      */
     public function markAsReadBulk($userId, $ids = [])
     {
-        $builder = $this->builder();
-        $builder->where('user_id', $userId)
-                ->where('is_read', 0);
+        try {
+            $builder = $this->builder();
+            $builder->where('user_id', $userId)
+                    ->where('is_read', 0);
 
-        if (!empty($ids)) {
-            $builder->whereIn('id', $ids);
+            if (!empty($ids)) {
+                $builder->whereIn('id', $ids);
+            }
+
+            $result = $builder->update(['is_read' => 1]);
+            return $result;
+        } catch (\Exception $e) {
+            log_message('error', 'Bulk mark as read error: ' . $e->getMessage());
+            return false;
         }
-
-        return $builder->update(['is_read' => 1]);
     }
 
     /**

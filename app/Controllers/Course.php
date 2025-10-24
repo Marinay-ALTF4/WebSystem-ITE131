@@ -3,10 +3,11 @@
 namespace App\Controllers;
 
 use App\Models\EnrollmentModel;
+use App\Models\NotificationModel;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\Controller;
 
-class Course extends Controller
+class Course extends BaseController
 {
     
     public function enroll(): ResponseInterface
@@ -44,7 +45,23 @@ class Course extends Controller
                 ->setJSON(['success' => false, 'message' => 'Enrollment failed.']);
         }
 
-        return $this->response->setJSON(['success' => true, 'message' => 'Enrolled successfully.']);
+        // Create notification for successful enrollment
+        $notificationModel = new NotificationModel();
+        $courseModel = new \App\Models\CourseModel();
+        $course = $courseModel->find($courseId);
+        $courseTitle = $course ? $course['title'] : 'Course';
+        
+        // Generate notification
+        $notificationCreated = $notificationModel->createNotification(
+            $userId, 
+            "You have successfully enrolled in '{$courseTitle}'"
+        );
+
+        return $this->response->setJSON([
+            'success' => true, 
+            'message' => 'Enrolled successfully.',
+            'notification_sent' => $notificationCreated !== false
+        ]);
     }
 }
 

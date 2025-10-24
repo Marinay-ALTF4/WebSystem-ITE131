@@ -7,7 +7,7 @@ use App\Models\EnrollmentModel;
 use CodeIgniter\Controller;
 use App\Models\CourseModel;
 
-class Auth extends Controller
+class Auth extends BaseController
 {
 
     public function register()
