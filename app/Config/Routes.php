@@ -43,11 +43,11 @@ use CodeIgniter\Router\RouteCollection;
 
         // Notifications Lab 8
         // Notifications
-$routes->get('/notifications', 'Notifications::get');
-$routes->get('/notifications/count', 'Notifications::count');
-$routes->get('/notifications/view', 'Notifications::index'); // ← shows notification.php
-$routes->post('/notifications/mark_read/(:num)', 'Notifications::mark_as_read/$1');
-$routes->post('/notifications/mark_all', 'Notifications::mark_all');
+        $routes->get('/notifications', 'Notifications::get');
+        $routes->get('/notifications/count', 'Notifications::count');
+        $routes->get('/notifications/view', 'Notifications::index'); // ← shows notification.php
+        $routes->post('/notifications/mark_read/(:num)', 'Notifications::mark_as_read/$1');
+        $routes->post('/notifications/mark_all', 'Notifications::mark_all');
 
 
 
