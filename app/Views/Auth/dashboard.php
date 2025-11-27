@@ -25,10 +25,10 @@
         <h3 class="mb-3"><i class="bi bi-person-circle me-2"></i>Welcome, <?= esc(session()->get('name') ?? 'User') ?>!</h3>
         <p class="text-muted mb-4">Role: <strong><?= esc($role ?? 'User') ?></strong></p>
         <hr>
-
+<!-- test -->
         <!--  ADMIN DASHBOARD  -->
         <?php if ($role === 'admin'): ?>
-          <h4 class="mb-3"><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</h4>
+          <h4 class="mb-3"></i>Admin Dashboard</h4>
 
           <p>Total Users: <strong><?= isset($data['usersCount']) ? (int)$data['usersCount'] : 0 ?></strong></p>
 
@@ -72,7 +72,7 @@
                   </div>
                   <div>
                     <a href="<?= base_url('admin/course/' . $course['id'] . '/upload'); ?>" 
-                      class="btn btn-primary btn-sm rounded-pill">
+                      class="btn btn-dark btn-sm rounded-pill">
                       Add Material
                     </a>
                   </div>
@@ -114,7 +114,7 @@
                   </div>
                   <div>
                     <a href="<?= base_url('admin/course/' . $course['id'] . '/upload'); ?>" 
-                      class="btn btn-primary btn-sm rounded-pill">
+                      class="btn btn-dark btn-sm rounded-pill">
                       Add Material
                     </a>
                   </div>
@@ -130,7 +130,7 @@
 
  <!-- Add New Course Button -->
 <div class="text-center my-4">
-  <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCourseModal">
+  <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#addCourseModal">
     <i class="bi bi-plus-circle me-1"></i> Add New Course
   </button>
 </div>
@@ -161,7 +161,7 @@
 
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Course</button>
+          <button type="submit" class="btn btn-dark">Save Course</button>
         </div>
       </form>
     </div>
@@ -199,10 +199,10 @@
 
         <!--  STUDENT DASHBOARD  -->
         <?php else: ?>
-          <h4 class="mb-3"><i class="bi bi-book me-2"></i>Student Dashboard</h4>
+          <h4 class="mb-3"></i>Student Dashboard</h4>
 
           <!-- Student Profile -->
-          <h5><i class="bi bi-person-badge me-2"></i>My Profile</h5>
+          <h5></i>My Profile</h5>
           <?php if (!empty($data['profile'])): ?>
             <div class="row g-3 mb-4 mt-2">
               <div class="col-md-6">
@@ -251,7 +251,7 @@
                                 <td><?= esc($mat['file_name']) ?></td>
                                 <td>
                                   <a href="<?= site_url('materials/download/' . $mat['id']) ?>" 
-                                    class="btn btn-primary btn-sm">
+                                    class="btn btn-dark btn-sm">
                                     <i class="bi bi-download"></i> Download
                                   </a>
                                 </td>
