@@ -243,7 +243,7 @@
                     <div class="card-body">
                         <h5 class="card-title"><?= esc($course['title']) ?></h5>
                         <p class="card-text"><?= esc($course['description']) ?></p>
-                        <a href="#" class="btn btn-primary">View Course</a>
+                        <a href="#" class="btn btn-dark">View Course</a>
                     </div>
                 </div>
             </div>
@@ -330,8 +330,8 @@ $(document).ready(function () {
         e.preventDefault();
         var searchTerm = $("#searchInput").val();
 
-        $.get('/courses/search', { search_term: searchTerm }, function(data) {
-            $("#coursesContainer").empty();
+        $.get('<?= base_url("courses/search") ?>', { search_term: searchTerm }, function(data) {
+          $("#coursesContainer").empty();
 
             if (data.length > 0) {
                 $.each(data, function(index, course) {
@@ -360,4 +360,3 @@ $(document).ready(function () {
 
 </body>
 </html>
-  
