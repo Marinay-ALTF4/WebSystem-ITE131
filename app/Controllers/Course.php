@@ -4,12 +4,18 @@ namespace App\Controllers;
 
 use App\Models\EnrollmentModel;
 use App\Models\NotificationModel;
+use App\Models\CourseModel;
 use CodeIgniter\HTTP\ResponseInterface;
-use CodeIgniter\Controller;
 
 class Course extends BaseController
 {
-    
+    protected $courseModel;
+
+    public function __construct()
+    {
+        $this->courseModel = new CourseModel();
+    }
+
     public function enroll(): ResponseInterface
     {
         $session = session();
@@ -45,24 +51,43 @@ class Course extends BaseController
                 ->setJSON(['success' => false, 'message' => 'Enrollment failed.']);
         }
 
-        // Create notification for successful enrollment
+        // Notification
         $notificationModel = new NotificationModel();
-        $courseModel = new \App\Models\CourseModel();
-        $course = $courseModel->find($courseId);
+        $course = $this->courseModel->find($courseId);
         $courseTitle = $course ? $course['title'] : 'Course';
-        
-        // Generate notification
-        $notificationCreated = $notificationModel->createNotification(
-            $userId, 
+
+        $notificationModel->createNotification(
+            $userId,
             "You have successfully enrolled in '{$courseTitle}'"
         );
 
         return $this->response->setJSON([
-            'success' => true, 
+            'success' => true,
             'message' => 'Enrolled successfully.',
-            'notification_sent' => $notificationCreated !== false
+        ]);
+    }
+
+    // --------------------------
+    // LAB 9: Search Function
+    // --------------------------
+    public function search()
+    {
+        $searchTerm = $this->request->getGet('search_term');
+
+        if (!empty($searchTerm)) {
+            $this->courseModel->like('title', $searchTerm);
+            $this->courseModel->orLike('description', $searchTerm);
+        }
+
+        $courses = $this->courseModel->findAll();
+
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON($courses);
+        }
+
+        return view('Courses/search', [
+            'courses' => $courses,
+            'searchTerm' => $searchTerm
         ]);
     }
 }
-
-

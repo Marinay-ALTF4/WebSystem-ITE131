@@ -30,6 +30,9 @@ use CodeIgniter\Router\RouteCollection;
         $routes->post('courses/enroll', 'Course::enroll');
         $routes->get('/studentCourse', 'Auth::studentCourse');
         $routes->post('teacher/course/add', 'Auth::addCourse');
+        
+        $routes->post('admin/registerUser', 'AdminController::registerUser');
+
 
 
        // Materials routes
@@ -45,9 +48,13 @@ use CodeIgniter\Router\RouteCollection;
         // Notifications
         $routes->get('/notifications', 'Notifications::get');
         $routes->get('/notifications/count', 'Notifications::count');
-        $routes->get('/notifications/view', 'Notifications::index'); // ← shows notification.php
+        $routes->get('/notifications/view', 'Notifications::index'); 
         $routes->post('/notifications/mark_read/(:num)', 'Notifications::mark_as_read/$1');
         $routes->post('/notifications/mark_all', 'Notifications::mark_all');
+
+        // Search & filtering system Lab 9
+        $routes->get('/courses/search', 'Course::search');
+        $routes->post('/courses/search', 'Course::search');
 
 
 

@@ -9,7 +9,7 @@
 
 <div class="container">
   <div class="card shadow border-0">
-    <div class="card-header bg-primary text-white">
+    <div class="card-header bg-dark text-white">
       <h4 class="mb-0">Upload Course Materials</h4>
     </div>
 
@@ -38,7 +38,7 @@
           <div class="form-text">Allowed: pdf, doc, docx, ppt, pptx, jpg, png, mp4, zip (max 5MB)</div>
         </div>
 
-        <button type="submit" class="btn btn-primary">Upload</button>
+        <button type="submit" class="btn btn-dark">Upload</button>
         <a href="<?= site_url('dashboard') ?>" class="btn btn-secondary">Back</a>
       </form>
 

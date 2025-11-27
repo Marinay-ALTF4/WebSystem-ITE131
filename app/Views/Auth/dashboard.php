@@ -25,10 +25,11 @@
         <h3 class="mb-3"><i class="bi bi-person-circle me-2"></i>Welcome, <?= esc(session()->get('name') ?? 'User') ?>!</h3>
         <p class="text-muted mb-4">Role: <strong><?= esc($role ?? 'User') ?></strong></p>
         <hr>
-<!-- test -->
+
         <!--  ADMIN DASHBOARD  -->
         <?php if ($role === 'admin'): ?>
-          <h4 class="mb-3"></i>Admin Dashboard</h4>
+          
+          <h4 class="mb-3">Admin Dashboard</h4>
 
           <p>Total Users: <strong><?= isset($data['usersCount']) ? (int)$data['usersCount'] : 0 ?></strong></p>
 
@@ -126,21 +127,19 @@
           <?php endif; ?>
 
 
-<!-- ADD NEW COURSE FORM RANI INCASO -->
+<!-- ADD NEW COURSE FORM -->
 
- <!-- Add New Course Button -->
 <div class="text-center my-4">
   <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#addCourseModal">
     <i class="bi bi-plus-circle me-1"></i> Add New Course
   </button>
 </div>
 
-<!-- Add Course Modal -->
 <div class="modal fade" id="addCourseModal" tabindex="-1" aria-labelledby="addCourseModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <form action="<?= base_url('teacher/course/add') ?>" method="post">
-        <?= csrf_field() ?> <!--  Required for CI4 -->
+        <?= csrf_field() ?>
 
         <div class="modal-header">
           <h5 class="modal-title" id="addCourseModalLabel">Add New Course</h5>
@@ -176,8 +175,7 @@
               <h5><i class="bi bi-folder2-open me-2"></i>Uploaded Materials</h5>
               <table class="table table-bordered table-striped mt-3">
                 <thead class="table-secondary">
-                  <tr><th>#</th><th>File Name</th><th>Action</th></tr>
-                </thead>
+                  <tr><th>#</th><th>File Name</th><th>Action</th></tr></thead>
                 <tbody>
                   <?php foreach ($data['materials'] as $index => $mat): ?>
                     <tr>
@@ -199,10 +197,10 @@
 
         <!--  STUDENT DASHBOARD  -->
         <?php else: ?>
-          <h4 class="mb-3"></i>Student Dashboard</h4>
+          <h4 class="mb-3">Student Dashboard</h4>
 
           <!-- Student Profile -->
-          <h5></i>My Profile</h5>
+          <h5>My Profile</h5>
           <?php if (!empty($data['profile'])): ?>
             <div class="row g-3 mb-4 mt-2">
               <div class="col-md-6">
@@ -216,6 +214,44 @@
               </div>
             </div>
           <?php endif; ?>
+
+          <hr>
+
+<!-- Lab 9: Search and Filtering put here-->
+
+<!-- LAB 9: SEARCH BAR -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <form id="searchForm" class="d-flex">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control"
+                    placeholder="Search courses..." name="search_term">
+                <button class="btn btn-outline-dark" type="submit">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- LAB 9: SEARCH RESULTS CONTAINER -->
+<div id="coursesContainer" class="row">
+    <?php if (!empty($data['courses'])): ?>
+        <?php foreach ($data['courses'] as $course): ?>
+            <div class="col-md-4 mb-4">
+                <div class="card course-card">
+                    <div class="card-body">
+                        <h5 class="card-title"><?= esc($course['title']) ?></h5>
+                        <p class="card-text"><?= esc($course['description']) ?></p>
+                        <a href="#" class="btn btn-primary">View Course</a>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <p class="text-muted">No courses available.</p>
+    <?php endif; ?>
+</div>
 
           <hr>
 
@@ -276,5 +312,52 @@
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- LAB 9: SEARCH & FILTERING SCRIPT -->
+<script>
+$(document).ready(function () {
+
+    // Client-side filtering
+    $("#searchInput").on('keyup', function () {
+        var value = $(this).val().toLowerCase();
+        $('.course-card').filter(function () {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+        });
+    });
+
+    // Server-side search with AJAX
+    $("#searchForm").on('submit', function(e) {
+        e.preventDefault();
+        var searchTerm = $("#searchInput").val();
+
+        $.get('/courses/search', { search_term: searchTerm }, function(data) {
+            $("#coursesContainer").empty();
+
+            if (data.length > 0) {
+                $.each(data, function(index, course) {
+                    var courseHtml = `
+                        <div class="col-md-4 mb-4">
+                            <div class="card course-card">
+                                <div class="card-body">
+                                    <h5 class="card-title">${course.title}</h5>
+                                    <p class="card-text">${course.description}</p>
+                                    <a href="#" class="btn btn-primary">View Course</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    $("#coursesContainer").append(courseHtml);
+                });
+            } else {
+                $("#coursesContainer").html(
+                    '<div class="col-12"><div class="alert alert-info">No courses found matching your search.</div></div>'
+                );
+            }
+        });
+    });
+});
+</script>
+
 </body>
 </html>
+  
