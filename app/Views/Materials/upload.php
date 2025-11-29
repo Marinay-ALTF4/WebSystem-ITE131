@@ -22,7 +22,7 @@
         <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
       <?php endif; ?>
 
-      <!-- Upload form -->
+      <!-- Upload form test -->
       <form 
   action="<?= site_url('admin/course/' . esc($course_id ?? '0') . '/upload') ?>" 
   method="POST" 
