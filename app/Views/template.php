@@ -29,10 +29,7 @@
           <a class="nav-link border border-white rounded px-3 py-2 me-2 text-white bg-transparent hover-gray" 
              href="<?= base_url('login') ?>">Login</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link border border-white rounded px-3 py-2 text-white bg-transparent hover-gray" 
-             href="<?= base_url('register') ?>">Register</a>
-        </li>
+        
       </ul>
     </div>
   </div>

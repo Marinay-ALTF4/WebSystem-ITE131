@@ -56,6 +56,9 @@ use CodeIgniter\Router\RouteCollection;
         $routes->get('/courses/search', 'Course::search');
         $routes->post('/courses/search', 'Course::search');
 
+        // User Management - Admin Only
+        
+
 
 
 

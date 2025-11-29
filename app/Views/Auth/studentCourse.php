@@ -71,7 +71,7 @@
                           <small class="text-muted"><?= esc($course['description']) ?></small>
                         </div>
                         <!--  Enroll button with course ID -->
-                        <button class="btn btn-primary btn-sm enroll-btn"
+                        <button class="btn btn-dark btn-sm enroll-btn"
                                 data-course-id="<?= (int)$course['id'] ?>">Enroll</button>
                       </div>
                     </li>
