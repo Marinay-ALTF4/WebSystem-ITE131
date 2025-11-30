@@ -45,6 +45,147 @@
                   </tr>
                 </thead>
                 <tbody>
+                  
+                  <!-- USER MANAGEMENT SECTION -->
+<hr>
+<h4 class="mb-3">User Management</h4>
+
+<!-- Add User Button -->
+<div class="text-center my-4">
+  <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#addUserModal">
+    <i class="bi bi-person-plus me-1"></i> Add New User
+  </button>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="<?= base_url('admin/user/add') ?>" method="post">
+        <?= csrf_field() ?>
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="addUserModalLabel">Add New User</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="name" class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="role" class="form-label">Role</label>
+            <select class="form-select" id="role" name="role" required>
+              <option value="student">Student</option>
+              <option value="teacher">Teacher</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-dark">Save User</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- User List -->
+<?php if (!empty($data['users'])): ?>
+  <div class="table-responsive mt-3">
+    <table class="table table-striped table-bordered align-middle">
+      <thead class="table-primary">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($data['users'] as $user): ?>
+          <tr>
+            <td><?= (int)$user['id'] ?></td>
+            <td><?= esc($user['name']) ?></td>
+            <td><?= esc($user['email']) ?></td>
+            <td><?= esc(ucfirst($user['role'])) ?></td>
+            <td>
+              <!-- Edit Button -->
+              <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editUserModal<?= $user['id'] ?>">
+                <i class="bi bi-pencil"></i> Edit
+              </button>
+
+              <!-- Delete Button -->
+              <a href="<?= base_url('admin/user/delete/' . $user['id']) ?>" 
+                class="btn btn-sm btn-danger" 
+                onclick="return confirm('Are you sure you want to delete this user?')">
+                <i class="bi bi-trash"></i> Delete
+              </a>
+            </td>
+          </tr>
+
+          <!-- Edit User Modal -->
+          <div class="modal fade" id="editUserModal<?= $user['id'] ?>" tabindex="-1" aria-labelledby="editUserModalLabel<?= $user['id'] ?>" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <form action="<?= base_url('admin/user/edit/' . $user['id']) ?>" method="post">
+                  <?= csrf_field() ?>
+
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="editUserModalLabel<?= $user['id'] ?>">Edit User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+
+                  <div class="modal-body">
+                    <div class="mb-3">
+                      <label for="name<?= $user['id'] ?>" class="form-label">Full Name</label>
+                      <input type="text" class="form-control" id="name<?= $user['id'] ?>" name="name" value="<?= esc($user['name']) ?>" required>
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="email<?= $user['id'] ?>" class="form-label">Email</label>
+                      <input type="email" class="form-control" id="email<?= $user['id'] ?>" name="email" value="<?= esc($user['email']) ?>" required>
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="role<?= $user['id'] ?>" class="form-label">Role</label>
+                      <select class="form-select" id="role<?= $user['id'] ?>" name="role" required>
+                        <option value="student" <?= $user['role'] === 'student' ? 'selected' : '' ?>>Student</option>
+                        <option value="teacher" <?= $user['role'] === 'teacher' ? 'selected' : '' ?>>Teacher</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-dark">Save Changes</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+<?php else: ?>
+  
+<?php endif; ?>
+
                   <?php foreach ($data['recentUsers'] as $u): ?>
                     <tr>
                       <td><?= (int)$u['id'] ?></td>
