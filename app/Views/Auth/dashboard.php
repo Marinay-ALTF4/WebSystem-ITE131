@@ -183,7 +183,6 @@
     </table>
   </div>
 <?php else: ?>
-  
 <?php endif; ?>
 
                   <?php foreach ($data['recentUsers'] as $u): ?>
