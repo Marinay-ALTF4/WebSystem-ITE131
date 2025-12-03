@@ -72,14 +72,26 @@ class Course extends BaseController
     // --------------------------
     public function search()
     {
-        $searchTerm = $this->request->getGet('search_term');
+        $searchTerm = trim((string) $this->request->getGet('search_term'));
 
-        if (!empty($searchTerm)) {
-            $this->courseModel->like('title', $searchTerm);
-            $this->courseModel->orLike('description', $searchTerm);
+        if ($searchTerm === '') {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([]);
+            }
+
+            return view('Courses/search', [
+                'courses'    => [],
+                'searchTerm' => $searchTerm,
+                'error'      => 'Please enter a search term.',
+            ]);
         }
 
-        $courses = $this->courseModel->findAll();
+        $courses = $this->courseModel
+            ->groupStart()
+            ->like('title', $searchTerm)
+            ->orLike('description', $searchTerm)
+            ->groupEnd()
+            ->findAll();
 
         if ($this->request->isAJAX()) {
             return $this->response->setJSON($courses);
