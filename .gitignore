@@ -1,0 +1,17 @@
+# Ignore composer vendor (if installed locally)
+vendor/
+
+# CodeIgniter writable directories
+writable/cache/
+writable/logs/
+writable/debugbar/
+writable/session/
+writable/uploads/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.log
+
+# Node / front-end (if any)
+node_modules/
