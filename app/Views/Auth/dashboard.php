@@ -228,36 +228,116 @@
         <?php elseif ($role === 'teacher'): ?>
           <h4 class="mb-3"><i class="bi bi-journal-text me-2"></i>Teacher Dashboard</h4>
 
-          <h5>My Students</h5>
-          <?php if (!empty($data['students'])): ?>
-            <ul class="list-group mt-3 mb-4">
-              <?php foreach ($data['students'] as $s): ?>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <?= esc($s['name']) ?>
-                  <span class="badge bg-secondary">Student</span>
-                </li>
-              <?php endforeach; ?>
-            </ul>
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <h5 class="mb-0">My Students</h5>
+            <span class="badge bg-dark">Pending: <?= count($data['pendingEnrollments'] ?? []) ?></span>
+          </div>
+
+          <?php if (!empty($data['enrollments'])): ?>
+            <div class="table-responsive mb-4">
+              <table class="table table-striped table-bordered align-middle">
+                <thead class="table-dark">
+                  <tr>
+                    <th>Student</th>
+                    <th>Course</th>
+                    <th>Status</th>
+                    <th class="text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php foreach ($data['enrollments'] as $enrollment): ?>
+                    <?php
+                      $status = strtolower($enrollment['status'] ?? 'pending');
+                      $badgeClass = $status === 'accepted' ? 'success' : ($status === 'declined' ? 'danger' : 'warning');
+                    ?>
+                    <tr>
+                      <td>
+                        <div class="fw-semibold"><?= esc($enrollment['student_name'] ?? 'Student') ?></div>
+                        <div class="text-muted small"><?= esc($enrollment['student_email'] ?? '') ?></div>
+                      </td>
+                      <td>
+                        <div class="fw-semibold"><?= esc($enrollment['course_title'] ?? 'Course') ?></div>
+                        <div class="text-muted small">SY: <?= esc($enrollment['school_year'] ?? 'N/A') ?></div>
+                      </td>
+                      <td><span class="badge bg-<?= $badgeClass ?> text-uppercase"><?= esc($status) ?></span></td>
+                      <td class="text-center">
+                        <?php if ($status === 'pending'): ?>
+                          <form action="<?= base_url('teacher/enrollments/' . $enrollment['id'] . '/status') ?>" method="post" class="d-inline">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="status" value="accepted">
+                            <button type="submit" class="btn btn-sm btn-success">Accept</button>
+                          </form>
+                          <form action="<?= base_url('teacher/enrollments/' . $enrollment['id'] . '/status') ?>" method="post" class="d-inline">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="status" value="declined">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Decline</button>
+                          </form>
+                        <?php endif; ?>
+                      </td>
+                    </tr>
+                  <?php endforeach; ?>
+                </tbody>
+              </table>
+            </div>
           <?php else: ?>
-            <p class="text-muted">No students assigned yet.</p>
+            <p class="text-muted">No enrollment requests yet.</p>
           <?php endif; ?>
 
-          <hr>
+          <hr class="my-4">
           <h4 class="card-title mb-3">My Courses</h4>
 
           <?php if (!empty($data['courses'])): ?>
-            <div class="list-group">
+            <div class="list-group mb-3">
               <?php foreach ($data['courses'] as $course): ?>
                 <div class="list-group-item d-flex justify-content-between align-items-center">
                   <div>
                     <h5 class="mb-1"><?= esc($course['title']); ?></h5>
-                    <p class="text-muted mb-0"><?= esc($course['description']); ?></p>
+                    <p class="text-muted mb-1"><?= esc($course['description']); ?></p>
+                    <small class="text-muted">SY: <?= esc($course['school_year'] ?? 'Set school year') ?></small>
                   </div>
-                  <div>
+                  <div class="d-flex gap-2 align-items-center">
                     <a href="<?= base_url('admin/course/' . $course['id'] . '/upload'); ?>" 
                       class="btn btn-dark btn-sm rounded-pill">
                       Add Material
                     </a>
+                    <button class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#editCourseModal<?= $course['id'] ?>">Edit</button>
+                  </div>
+                </div>
+
+                <div class="modal fade" id="editCourseModal<?= $course['id'] ?>" tabindex="-1" aria-labelledby="editCourseModalLabel<?= $course['id'] ?>" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <form action="<?= base_url('teacher/course/update/' . $course['id']) ?>" method="post">
+                        <?= csrf_field() ?>
+
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="editCourseModalLabel<?= $course['id'] ?>">Edit Course</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <div class="modal-body">
+                          <div class="mb-3">
+                            <label for="title<?= $course['id'] ?>" class="form-label">Course Title</label>
+                            <input type="text" class="form-control" id="title<?= $course['id'] ?>" name="title" value="<?= esc($course['title']) ?>" required>
+                          </div>
+
+                          <div class="mb-3">
+                            <label for="description<?= $course['id'] ?>" class="form-label">Course Description</label>
+                            <textarea class="form-control" id="description<?= $course['id'] ?>" name="description" rows="3" required><?= esc($course['description']) ?></textarea>
+                          </div>
+
+                          <div class="mb-3">
+                            <label for="school_year<?= $course['id'] ?>" class="form-label">School Year</label>
+                            <input type="text" class="form-control" id="school_year<?= $course['id'] ?>" name="school_year" value="<?= esc($course['school_year'] ?? '2024-2025') ?>" placeholder="e.g., 2024-2025" required>
+                          </div>
+                        </div>
+
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                          <button type="submit" class="btn btn-dark">Save Changes</button>
+                        </div>
+                      </form>
+                    </div>
                   </div>
                 </div>
               <?php endforeach; ?>
@@ -266,48 +346,48 @@
             <p class="text-muted text-center mt-3">No courses assigned yet.</p>
           <?php endif; ?>
 
-
-<!-- ADD NEW COURSE FORM -->
-
-<div class="text-center my-4">
-  <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#addCourseModal">
-    <i class="bi bi-plus-circle me-1"></i> Add New Course
-  </button>
-</div>
-
-<div class="modal fade" id="addCourseModal" tabindex="-1" aria-labelledby="addCourseModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form action="<?= base_url('teacher/course/add') ?>" method="post">
-        <?= csrf_field() ?>
-
-        <div class="modal-header">
-          <h5 class="modal-title" id="addCourseModalLabel">Add New Course</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="title" class="form-label">Course Title</label>
-            <input type="text" class="form-control" id="title" name="title" required>
+          <div class="text-center my-4">
+            <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#addCourseModal">
+              <i class="bi bi-plus-circle me-1"></i> Add New Course
+            </button>
           </div>
 
-          <div class="mb-3">
-            <label for="description" class="form-label">Course Description</label>
-            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+          <div class="modal fade" id="addCourseModal" tabindex="-1" aria-labelledby="addCourseModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <form action="<?= base_url('teacher/course/add') ?>" method="post">
+                  <?= csrf_field() ?>
+
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="addCourseModalLabel">Add New Course</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+
+                  <div class="modal-body">
+                    <div class="mb-3">
+                      <label for="title" class="form-label">Course Title</label>
+                      <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="description" class="form-label">Course Description</label>
+                      <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="school_year" class="form-label">School Year</label>
+                      <input type="text" class="form-control" id="school_year" name="school_year" placeholder="e.g., 2024-2025" required>
+                    </div>
+                  </div>
+
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-dark">Save Course</button>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-dark">Save Course</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- END ADD NEW COURSE FORM -->
 
 
           <?php if (!empty($data['materials'])): ?>
@@ -392,6 +472,23 @@
         <p class="text-muted">No courses available.</p>
     <?php endif; ?>
 </div>
+
+<?php if (!empty($data['pendingEnrollments'])): ?>
+  <div class="mt-3">
+    <h6>Pending Enrollment Requests</h6>
+    <div class="list-group">
+      <?php foreach ($data['pendingEnrollments'] as $pending): ?>
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <strong><?= esc($pending['title'] ?? 'Course') ?></strong>
+            <div class="text-muted small">SY: <?= esc($pending['school_year'] ?? 'N/A') ?></div>
+          </div>
+          <span class="badge bg-warning text-dark">Pending</span>
+        </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
+<?php endif; ?>
 
           <hr>
 

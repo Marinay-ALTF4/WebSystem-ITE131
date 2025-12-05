@@ -30,6 +30,9 @@ use CodeIgniter\Router\RouteCollection;
         $routes->post('courses/enroll', 'Course::enroll');
         $routes->get('/studentCourse', 'Auth::studentCourse');
         $routes->post('teacher/course/add', 'Auth::addCourse');
+        $routes->post('teacher/course/update/(:num)', 'Course::updateCourse/$1');
+        $routes->post('teacher/enrollments/(:num)/status', 'Course::updateEnrollmentStatus/$1');
+        $routes->post('teacher/enrollments/(:num)/remove', 'Course::removeEnrollment/$1');
         
         $routes->post('admin/registerUser', 'AdminController::registerUser');
 

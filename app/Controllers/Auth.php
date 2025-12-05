@@ -118,8 +118,11 @@ class Auth extends BaseController
             break;
 
         case 'teacher':
-            $data['students'] = $userModel->where('role', 'student')->findAll();
-            $data['courses'] = $courseModel->findAll(); 
+            $teacherId = (int) $session->get('userID');
+            $enrollmentModel = new EnrollmentModel();
+            $data['courses'] = $courseModel->where('teacher_id', $teacherId)->findAll();
+            $data['enrollments'] = $enrollmentModel->getEnrollmentsForTeacher($teacherId);
+            $data['pendingEnrollments'] = $enrollmentModel->getEnrollmentsForTeacher($teacherId, 'pending');
             break;
 
         case 'student':
@@ -131,7 +134,8 @@ class Auth extends BaseController
         
             // Enrolled courses
             $enrollmentModel = new EnrollmentModel();
-            $data['courses'] = $enrollmentModel->getUserEnrollments($userId);
+            $data['courses'] = $enrollmentModel->getUserEnrollments($userId, 'accepted');
+            $data['pendingEnrollments'] = $enrollmentModel->getUserEnrollments($userId, 'pending');
         
             // Materials for the student's courses
             $materialModel = new \App\Models\MaterialModel();
@@ -173,7 +177,8 @@ public function studentCourse()
     $notificationModel = new \App\Models\NotificationModel();
 
     $data = [
-        'enrolledCourses'  => $enrollmentModel->getUserEnrollments($userId),
+        'enrolledCourses'  => $enrollmentModel->getUserEnrollments($userId, 'accepted'),
+        'pendingCourses'   => $enrollmentModel->getUserEnrollments($userId, 'pending'),
         'availableCourses' => $enrollmentModel->getAvailableCoursesForUser($userId),
         'notifications'    => $notificationModel->getNotificationsForUser($userId)
     ];
@@ -193,13 +198,15 @@ public function addCourse()
 
     $title = $this->request->getPost('title');
     $description = $this->request->getPost('description');
+    $schoolYear = $this->request->getPost('school_year');
     $teacherId = $session->get('userID'); // fixed
 
     $courseModel = new \App\Models\CourseModel();
     $courseModel->save([
         'title' => $title,
         'description' => $description,
-        'teacher_id' => $teacherId
+        'teacher_id' => $teacherId,
+        'school_year' => $schoolYear
     ]);
 
     return redirect()->back()->with('success', 'Course added successfully.');

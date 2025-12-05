@@ -51,14 +51,35 @@
                     </li>
                   <?php endforeach; ?>
                 <?php else: ?>
-                  <li class="list-group-item text-muted">You have not enrolled in any course yet.</li>
+                  <li class="list-group-item text-muted empty-state">You have not enrolled in any course yet.</li>
                 <?php endif; ?>
               </ul>
             </div>
           </div>
 
-          <!--  Available Courses -->
+          <!--  Pending + Available Courses -->
           <div class="col-12 col-lg-6">
+            <div class="card shadow-sm mb-3">
+              <div class="card-header fw-bold">Pending Approval</div>
+              <ul id="pending-courses" class="list-group list-group-flush">
+                <?php if (!empty($data['pendingCourses'])): ?>
+                  <?php foreach ($data['pendingCourses'] as $course): ?>
+                    <li class="list-group-item">
+                      <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                          <div class="fw-semibold"><?= esc($course['title']) ?></div>
+                          <small class="text-muted"><?= esc($course['description']) ?></small>
+                        </div>
+                        <span class="badge text-bg-warning">Pending</span>
+                      </div>
+                    </li>
+                  <?php endforeach; ?>
+                <?php else: ?>
+                  <li class="list-group-item text-muted empty-state">No pending requests.</li>
+                <?php endif; ?>
+              </ul>
+            </div>
+
             <div class="card shadow-sm">
               <div class="card-header fw-bold">Available Courses</div>
               <ul id="available-courses" class="list-group list-group-flush">
@@ -124,25 +145,30 @@
 
           //  If enrollment was successful
           if (data && data.success) {
-            // Disable the button
-            $btn.prop('disabled', true).text('Enrolled');
-
-            // Move course from Available → Enrolled list
+            var status = data.status || 'pending';
             var $item = $btn.closest('li');
             var title = $item.find('.fw-semibold').text();
             var desc = $item.find('small.text-muted').text();
+            var targetList = status === 'accepted' ? '#enrolled-courses' : '#pending-courses';
+            var badgeClass = status === 'accepted' ? 'text-bg-success' : 'text-bg-warning';
+            var badgeLabel = status === 'accepted' ? 'Enrolled' : 'Pending';
 
-            $('#enrolled-courses').prepend(
+            $(targetList + ' .empty-state').remove();
+
+            $(targetList).prepend(
               '<li class="list-group-item">' +
                 '<div class="d-flex justify-content-between align-items-start">' +
                   '<div>' +
                     '<div class="fw-semibold">' + $('<div>').text(title).html() + '</div>' +
                     '<small class="text-muted">' + $('<div>').text(desc).html() + '</small>' +
                   '</div>' +
-                  '<span class="badge text-bg-success">Enrolled</span>' +
+                  '<span class="badge ' + badgeClass + '">' + badgeLabel + '</span>' +
                 '</div>' +
               '</li>'
             );
+
+            // Disable the button to avoid duplicate requests
+            $btn.prop('disabled', true).text(badgeLabel);
 
             // Remove the course from available courses list
             $item.remove();
