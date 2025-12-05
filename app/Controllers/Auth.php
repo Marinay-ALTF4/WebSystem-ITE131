@@ -12,32 +12,47 @@ class Auth extends BaseController
 
     public function register()
     {
-            helper(['form']);
+        helper(['form']);
+        $session = session();
 
-            if ($this->request->getMethod() === 'POST') {
-                $rules = [
-                     'name'              => 'required|min_length[3]',
-                     'email'             => 'required|valid_email|is_unique[users.email]',
-                     'password'          => 'required|min_length[6]',
-                     'password_confirm'  => 'matches[password]'
-                ];
+        if ($this->request->getMethod() === 'POST') {
+            $rules = [
+                'name' => [
+                    'rules'  => 'required|min_length[3]|regex_match[/^[A-Za-z][A-Za-z\s\.\'\-]*$/]',
+                    'errors' => [
+                        'regex_match' => 'Name may only contain letters, spaces, periods (no numbers or symbols).',
+                    ],
+                ],
+                'email' => [
+                    'rules'  => 'required|valid_email|is_unique[users.email]',
+                    'errors' => [
+                        'is_unique' => 'Email is already registered.',
+                    ],
+                ],
+                'password'         => 'required|min_length[6]',
+                'password_confirm' => 'matches[password]'
+            ];
 
-                if ($this->validate($rules)) {
-                    $userModel = new UserModel();
-                    $userModel->save([
-                        'name'     => $this->request->getVar('name'),
-                        'email'    => $this->request->getVar('email'),
-                        'password' => password_hash($this->request->getVar('password'), PASSWORD_DEFAULT),
-                        'role'     => 'student' // Default role sa register
-                    ]);
+            if ($this->validate($rules)) {
+                $userModel = new UserModel();
+                $userModel->save([
+                    'name'     => $this->request->getVar('name'),
+                    'email'    => $this->request->getVar('email'),
+                    'password' => password_hash($this->request->getVar('password'), PASSWORD_DEFAULT),
+                    'role'     => 'student' // Default role sa register
+                ]);
 
-                    return redirect()->to('/login')->with('success', 'Registration Success. Proceed to login.');
-                } else {
-                    return view('auth/register', ['validation' => $this->validator]);
-                }
+                return redirect()->to('/login')->with('success', 'Registration Success. Proceed to login.');
             }
 
-            return view('auth/register');
+            if ($this->validator->hasError('email')) {
+                $session->setFlashdata('error', $this->validator->getError('email'));
+            }
+
+            return view('auth/register', ['validation' => $this->validator]);
+        }
+
+        return view('auth/register');
     }
 
 
