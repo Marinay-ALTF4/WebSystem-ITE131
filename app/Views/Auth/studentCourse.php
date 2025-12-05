@@ -44,7 +44,9 @@
                       <div class="d-flex justify-content-between align-items-start">
                         <div>
                           <div class="fw-semibold"><?= esc($course['title']) ?></div>
-                          <small class="text-muted"><?= esc($course['description']) ?></small>
+                          <small class="text-dark d-block"><?= esc($course['description']) ?></small>
+                          <small class="text-dark d-block">Time: <?= esc($course['class_time'] ?? 'TBD') ?></small>
+                          <small class="text-dark d-block">SY: <?= esc($course['school_year'] ?? 'TBD') ?></small>
                         </div>
                         <span class="badge text-bg-success">Enrolled</span>
                       </div>
@@ -68,7 +70,7 @@
                       <div class="d-flex justify-content-between align-items-start">
                         <div>
                           <div class="fw-semibold"><?= esc($course['title']) ?></div>
-                          <small class="text-muted"><?= esc($course['description']) ?></small>
+                          <small class="text-dark"><?= esc($course['description']) ?></small>
                         </div>
                         <span class="badge text-bg-warning">Pending</span>
                       </div>
@@ -89,7 +91,10 @@
                       <div class="d-flex justify-content-between align-items-start">
                         <div>
                           <div class="fw-semibold"><?= esc($course['title']) ?></div>
-                          <small class="text-muted"><?= esc($course['description']) ?></small>
+                          <small class="text-dark d-block"><?= esc($course['description']) ?></small>
+                          <small class="text-dark d-block">Teacher: <?= esc($course['teacher_name'] ?? 'TBD') ?></small>
+                          <small class="text-dark d-block">Time: <?= esc($course['class_time'] ?? 'TBD') ?></small>
+                          <small class="text-dark d-block">SY: <?= esc($course['school_year'] ?? 'TBD') ?></small>
                         </div>
                         <!--  Enroll button with course ID -->
                         <button class="btn btn-dark btn-sm enroll-btn"

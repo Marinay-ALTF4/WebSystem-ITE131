@@ -198,6 +198,7 @@ public function addCourse()
 
     $title = $this->request->getPost('title');
     $description = $this->request->getPost('description');
+    $classTime = $this->request->getPost('class_time');
     $schoolYear = $this->request->getPost('school_year');
     $teacherId = $session->get('userID'); // fixed
 
@@ -206,7 +207,8 @@ public function addCourse()
         'title' => $title,
         'description' => $description,
         'teacher_id' => $teacherId,
-        'school_year' => $schoolYear
+        'school_year' => $schoolYear,
+        'class_time' => $classTime
     ]);
 
     return redirect()->back()->with('success', 'Course added successfully.');

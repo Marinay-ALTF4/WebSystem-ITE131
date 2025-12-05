@@ -58,7 +58,8 @@
 </div>
 
 <!-- Add User Modal -->
-<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+                    <small class="text-muted">Time: <?= esc($course['class_time'] ?? 'TBA') ?></small>
+                    <small class="text-muted">SY: <?= esc($course['school_year'] ?? 'Set school year') ?></small>
   <div class="modal-dialog">
     <div class="modal-content">
       <form action="<?= base_url('admin/user/add') ?>" method="post">
@@ -209,9 +210,9 @@
                 <div class="list-group-item d-flex justify-content-between align-items-center">
                   <div>
                     <h5 class="mb-1"><?= esc($course['title']); ?></h5>
-                    <p class="text-muted mb-0"><?= esc($course['description']); ?></p>
-                  </div>
-                  <div>
+                    <p class="text-muted mb-1"><?= esc($course['description']); ?></p>
+                    <small class="text-dark">Time: <?= esc($course['class_time'] ?? 'Set time') ?></small>
+                    <small class="text-dark">SY: <?= esc($course['school_year'] ?? 'Set school year') ?></small>
                     <a href="<?= base_url('admin/course/' . $course['id'] . '/upload'); ?>" 
                       class="btn btn-dark btn-sm rounded-pill">
                       Add Material
@@ -257,7 +258,8 @@
                       </td>
                       <td>
                         <div class="fw-semibold"><?= esc($enrollment['course_title'] ?? 'Course') ?></div>
-                        <div class="text-muted small">SY: <?= esc($enrollment['school_year'] ?? 'N/A') ?></div>
+                        <div class="text-dark small">Time: <?= esc($enrollment['class_time'] ?? 'N/A') ?></div>
+                        <div class="text-dark small">SY: <?= esc($enrollment['school_year'] ?? 'N/A') ?></div>
                       </td>
                       <td><span class="badge bg-<?= $badgeClass ?> text-uppercase"><?= esc($status) ?></span></td>
                       <td class="text-center">
@@ -293,7 +295,9 @@
                   <div>
                     <h5 class="mb-1"><?= esc($course['title']); ?></h5>
                     <p class="text-muted mb-1"><?= esc($course['description']); ?></p>
-                    <small class="text-muted">SY: <?= esc($course['school_year'] ?? 'Set school year') ?></small>
+                    <small class="text-dark d-block">Teacher: <?= esc(session()->get('name')) ?></small>
+                    <small class="text-dark d-block">Time: <?= esc($course['class_time'] ?? 'TBA') ?></small>
+                    <small class="text-dark d-block">SY: <?= esc($course['school_year'] ?? 'Set school year') ?></small>
                   </div>
                   <div class="d-flex gap-2 align-items-center">
                     <a href="<?= base_url('admin/course/' . $course['id'] . '/upload'); ?>" 
@@ -330,6 +334,10 @@
                             <label for="school_year<?= $course['id'] ?>" class="form-label">School Year</label>
                             <input type="text" class="form-control" id="school_year<?= $course['id'] ?>" name="school_year" value="<?= esc($course['school_year'] ?? '2024-2025') ?>" placeholder="e.g., 2024-2025" required>
                           </div>
+                              <div class="mb-3">
+                                <label for="class_time<?= $course['id'] ?>" class="form-label">Time</label>
+                                <input type="text" class="form-control" id="class_time<?= $course['id'] ?>" name="class_time" value="<?= esc($course['class_time'] ?? '') ?>" placeholder="e.g., MWF 9:00-10:00 AM">
+                              </div>
                         </div>
 
                         <div class="modal-footer">
@@ -372,6 +380,11 @@
                     <div class="mb-3">
                       <label for="description" class="form-label">Course Description</label>
                       <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="class_time" class="form-label">Time</label>
+                      <input type="text" class="form-control" id="class_time" name="class_time" placeholder="e.g., MWF 9:00-10:00 AM">
                     </div>
 
                     <div class="mb-3">

@@ -13,7 +13,7 @@ class EnrollmentModel extends Model
 
     public function getUserEnrollments(int $userId, ?string $status = 'accepted'): array
     {
-        $builder = $this->select('enrollments.*, courses.title, courses.description, courses.school_year, courses.teacher_id, users.name AS student_name, users.email AS student_email')
+        $builder = $this->select('enrollments.*, courses.title, courses.description, courses.school_year, courses.class_time, courses.teacher_id, users.name AS student_name, users.email AS student_email')
             ->join('courses', 'courses.id = enrollments.course_id', 'left')
             ->join('users', 'users.id = enrollments.user_id', 'left')
             ->where('enrollments.user_id', $userId);
@@ -27,7 +27,7 @@ class EnrollmentModel extends Model
 
     public function getEnrollmentsForTeacher(int $teacherId, ?string $status = null): array
     {
-        $builder = $this->select('enrollments.*, users.name AS student_name, users.email AS student_email, courses.title AS course_title, courses.school_year, courses.teacher_id')
+        $builder = $this->select('enrollments.*, users.name AS student_name, users.email AS student_email, courses.title AS course_title, courses.school_year, courses.class_time, courses.teacher_id')
             ->join('courses', 'courses.id = enrollments.course_id', 'left')
             ->join('users', 'users.id = enrollments.user_id', 'left')
             ->where('courses.teacher_id', $teacherId);
@@ -41,7 +41,7 @@ class EnrollmentModel extends Model
 
     public function findWithCourseAndStudent(int $enrollmentId): ?array
     {
-        return $this->select('enrollments.*, courses.teacher_id, courses.title AS course_title, users.name AS student_name, users.id AS student_id')
+        return $this->select('enrollments.*, courses.teacher_id, courses.title AS course_title, courses.class_time, courses.school_year, users.name AS student_name, users.id AS student_id')
             ->join('courses', 'courses.id = enrollments.course_id', 'left')
             ->join('users', 'users.id = enrollments.user_id', 'left')
             ->where('enrollments.id', $enrollmentId)
@@ -60,7 +60,8 @@ class EnrollmentModel extends Model
     {
         $db = $this->db;
         $builder = $db->table('courses');
-        $builder->select('courses.*');
+        $builder->select('courses.*, users.name AS teacher_name');
+        $builder->join('users', 'users.id = courses.teacher_id', 'left');
         $builder->whereNotIn('courses.id', function($sub) use ($userId) {
             $sub->select('course_id')
                 ->from('enrollments')

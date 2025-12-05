@@ -227,6 +227,7 @@ class Course extends BaseController
             'title' => trim((string) $this->request->getPost('title')),
             'description' => trim((string) $this->request->getPost('description')),
             'school_year' => trim((string) $this->request->getPost('school_year')),
+            'class_time' => trim((string) $this->request->getPost('class_time')),
         ];
 
         $this->courseModel->update($courseId, $data);
