@@ -49,20 +49,7 @@
 
           <p>Total Users: <strong><?= isset($data['usersCount']) ? (int)$data['usersCount'] : 0 ?></strong></p>
 
-          <?php if (!empty($data['recentUsers'])): ?>
-            <div class="table-responsive mt-3">
-              <table class="table table-striped table-bordered align-middle">
-                <thead class="table-primary">
-                  <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  
-                  <!-- USER MANAGEMENT SECTION -->
+          <!-- USER MANAGEMENT SECTION -->
 <hr>
 <h4 class="mb-3">User Management</h4>
 
@@ -167,14 +154,14 @@
             </td>
             <td class="d-flex flex-wrap gap-2">
               <?php if (! $isDeleted): ?>
-                <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editUserModal<?= $user['id'] ?>">
+                <button class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#editUserModal<?= $user['id'] ?>">
                   <i class="bi bi-pencil"></i> Edit
                 </button>
 
                 <?php if (! $isCurrent): ?>
                   <form action="<?= base_url('admin/user/delete/' . $user['id']) ?>" method="post" class="d-inline">
                     <?= csrf_field() ?>
-                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this user?')">
+                    <button type="submit" class="btn btn-sm btn-outline-dark" onclick="return confirm('Are you sure you want to delete this user?')">
                       <i class="bi bi-trash"></i> Delete
                     </button>
                   </form>
@@ -249,21 +236,6 @@
   </div>
 <?php else: ?>
 <?php endif; ?>
-
-                  <?php foreach ($data['recentUsers'] as $u): ?>
-                    <tr>
-                      <td><?= (int)$u['id'] ?></td>
-                      <td><?= esc($u['name']) ?></td>
-                      <td><?= esc($u['email']) ?></td>
-                      <td><?= esc($u['role']) ?></td>
-                    </tr>
-                  <?php endforeach; ?>
-                </tbody>
-              </table>
-            </div>
-          <?php else: ?>
-            <p class="text-muted">No users found.</p>
-          <?php endif; ?>
 
           <hr>
           <h4 class="card-title mb-3">Available Courses</h4>

@@ -19,12 +19,14 @@ use CodeIgniter\Router\RouteCollection;
         $routes->get('login', 'Auth::login');
         $routes->post('login', 'Auth::login');
         $routes->get('logout', 'Auth::logout');
+        
+        // Dynamic dashboard (single route handles all roles)
         $routes->get('/dashboard', 'Auth::dashboard');
 
-        // Role-based dashboards
-        $routes->get('admin/dashboard', 'Auth::adminDashboard');
-        $routes->get('teacher/dashboard', 'Auth::teacherDashboard');
-        $routes->get('student/dashboard', 'Auth::studentDashboard');
+        // // Role-based dashboards
+        // $routes->get('admin/dashboard', 'Auth::adminDashboard');
+        // $routes->get('teacher/dashboard', 'Auth::teacherDashboard');
+        // $routes->get('student/dashboard', 'Auth::studentDashboard');
 
         // Courses
         $routes->post('courses/enroll', 'Course::enroll');
