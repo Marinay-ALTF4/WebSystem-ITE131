@@ -129,14 +129,26 @@ class Auth extends BaseController
         case 'admin':
             $data['usersCount'] = $userModel->countAllResults();
             $data['recentUsers'] = $userModel->orderBy('id', 'DESC')->limit(5)->find();
-            $data['courses'] = $courseModel->findAll(); 
+            // Get courses with teacher names
+            $data['courses'] = $courseModel->select('courses.*, users.name AS teacher_name')
+                ->join('users', 'users.id = courses.teacher_id', 'left')
+                ->findAll();
+            // Get all teachers for admin to select when adding courses
+            $data['teachers'] = $userModel->where('role', 'teacher')->orderBy('name', 'ASC')->findAll();
             break;
 
         case 'teacher':
             $teacherId = (int) $session->get('userID');
             $enrollmentModel = new EnrollmentModel();
             $data['courses'] = $courseModel->where('teacher_id', $teacherId)->findAll();
-            $data['enrollments'] = $enrollmentModel->getEnrollmentsForTeacher($teacherId);
+            // Show accepted, pending, and declined enrollments (declined shows as "Dropped" and can be updated)
+            $allEnrollments = $enrollmentModel->getEnrollmentsForTeacher($teacherId);
+            $data['enrollments'] = array_filter($allEnrollments, function($enrollment) {
+                $status = strtolower($enrollment['status'] ?? '');
+                // Show all statuses except those that were never accepted (initial declines are removed)
+                // But we'll show all to allow updates - the view will handle display
+                return in_array($status, ['accepted', 'pending', 'declined'], true);
+            });
             $data['pendingEnrollments'] = $enrollmentModel->getEnrollmentsForTeacher($teacherId, 'pending');
             break;
 
@@ -207,21 +219,34 @@ public function studentCourse()
 public function addCourse()
 {
     $session = session();
-    if (! $session->get('isLoggedIn') || strtolower($session->get('role')) !== 'teacher') {
+    $role = strtolower((string) $session->get('role'));
+    
+    if (! $session->get('isLoggedIn') || !in_array($role, ['teacher', 'admin'], true)) {
         return redirect()->to(base_url('dashboard'))->with('error', 'Access denied.');
     }
 
     $title = $this->request->getPost('title');
     $description = $this->request->getPost('description');
+    $semester = $this->request->getPost('semester');
     $classTime = $this->request->getPost('class_time');
     $schoolYear = $this->request->getPost('school_year');
-    $teacherId = $session->get('userID'); // fixed
+    
+    // If admin, get teacher_id from form. If teacher, use their own ID.
+    if ($role === 'admin') {
+        $teacherId = (int) $this->request->getPost('teacher_id');
+        if ($teacherId <= 0) {
+            return redirect()->back()->with('error', 'Please select a teacher for this course.');
+        }
+    } else {
+        $teacherId = (int) $session->get('userID');
+    }
 
-    $courseModel = new \App\Models\CourseModel();
+    $courseModel = new CourseModel();
     $courseModel->save([
         'title' => $title,
         'description' => $description,
         'teacher_id' => $teacherId,
+        'semester' => $semester,
         'school_year' => $schoolYear,
         'class_time' => $classTime
     ]);

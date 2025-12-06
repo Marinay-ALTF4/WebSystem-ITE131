@@ -24,6 +24,22 @@
         <!-- Welcome -->
         <h3 class="mb-3"><i class="bi bi-person-circle me-2"></i>Welcome, <?= esc(session()->get('name') ?? 'User') ?>!</h3>
         <p class="text-muted mb-4">Role: <strong><?= esc($role ?? 'User') ?></strong></p>
+        
+        <!-- Flash Messages -->
+        <?php if (session()->getFlashdata('success')): ?>
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i><?= session()->getFlashdata('success') ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        <?php endif; ?>
+        
+        <?php if (session()->getFlashdata('error')): ?>
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i><?= session()->getFlashdata('error') ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        <?php endif; ?>
+        
         <hr>
 
         <!--  ADMIN DASHBOARD  -->
@@ -58,11 +74,10 @@
 </div>
 
 <!-- Add User Modal -->
-                    <small class="text-muted">Time: <?= esc($course['class_time'] ?? 'TBA') ?></small>
-                    <small class="text-muted">SY: <?= esc($course['school_year'] ?? 'Set school year') ?></small>
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form action="<?= base_url('admin/user/add') ?>" method="post">
+      <form action="<?= base_url('admin/user/add') ?>" method="post" id="addUserForm">
         <?= csrf_field() ?>
 
         <div class="modal-header">
@@ -73,25 +88,37 @@
         <div class="modal-body">
           <div class="mb-3">
             <label for="name" class="form-label">Full Name</label>
-            <input type="text" class="form-control" id="name" name="name" required>
+            <input type="text" class="form-control" id="name" name="name" 
+                   pattern="^[A-Za-z][A-Za-z\s\.\'\-]*$" 
+                   title="Name must start with a letter and can only contain letters, spaces, periods, apostrophes, and hyphens. No numbers or special characters allowed."
+                   required>
+            <div class="invalid-feedback" id="nameError"></div>
+            <small class="form-text text-muted">Only letters, spaces, periods (.), apostrophes ('), and hyphens (-) are allowed. No numbers or special characters.</small>
           </div>
 
           <div class="mb-3">
             <label for="email" class="form-label">Email</label>
             <input type="email" class="form-control" id="email" name="email" required>
+            <div class="invalid-feedback" id="emailError"></div>
+            <small class="form-text text-muted">Must be a valid email address and must be unique.</small>
           </div>
 
           <div class="mb-3">
             <label for="role" class="form-label">Role</label>
             <select class="form-select" id="role" name="role" required>
-              <option value="student">Student</option>
+              <option value="">Select Role</option>
+              <option value="admin">Admin</option>
               <option value="teacher">Teacher</option>
+              <option value="student">Student</option>
             </select>
+            <div class="invalid-feedback" id="roleError"></div>
           </div>
 
           <div class="mb-3">
             <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" id="password" name="password" required>
+            <input type="password" class="form-control" id="password" name="password" minlength="6" required>
+            <div class="invalid-feedback" id="passwordError"></div>
+            <small class="form-text text-muted">Password must be at least 6 characters long.</small>
           </div>
         </div>
 
@@ -165,8 +192,10 @@
                     <div class="mb-3">
                       <label for="role<?= $user['id'] ?>" class="form-label">Role</label>
                       <select class="form-select" id="role<?= $user['id'] ?>" name="role" required>
-                        <option value="student" <?= $user['role'] === 'student' ? 'selected' : '' ?>>Student</option>
+                        <option value="">Select Role</option>
+                        <option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
                         <option value="teacher" <?= $user['role'] === 'teacher' ? 'selected' : '' ?>>Teacher</option>
+                        <option value="student" <?= $user['role'] === 'student' ? 'selected' : '' ?>>Student</option>
                       </select>
                     </div>
                   </div>
@@ -205,18 +234,76 @@
           <h4 class="card-title mb-3">Available Courses</h4>
 
           <?php if (!empty($data['courses'])): ?>
-            <div class="list-group">
+            <div class="list-group mb-3">
               <?php foreach ($data['courses'] as $course): ?>
                 <div class="list-group-item d-flex justify-content-between align-items-center">
                   <div>
                     <h5 class="mb-1"><?= esc($course['title']); ?></h5>
                     <p class="text-muted mb-1"><?= esc($course['description']); ?></p>
-                    <small class="text-dark">Time: <?= esc($course['class_time'] ?? 'Set time') ?></small>
-                    <small class="text-dark">SY: <?= esc($course['school_year'] ?? 'Set school year') ?></small>
+                    <small class="text-dark d-block">Teacher: <?= esc($course['teacher_name'] ?? 'Not assigned') ?></small>
+                    <small class="text-dark d-block">Semester: <?= esc($course['semester'] ?? 'Not set') ?></small>
+                    <small class="text-dark d-block">Time: <?= esc($course['class_time'] ?? 'TBA') ?></small>
+                    <small class="text-dark d-block">SY: <?= esc($course['school_year'] ?? 'Set school year') ?></small>
+                  </div>
+                  <div class="d-flex gap-2 align-items-center">
                     <a href="<?= base_url('admin/course/' . $course['id'] . '/upload'); ?>" 
                       class="btn btn-dark btn-sm rounded-pill">
                       Add Material
                     </a>
+                    <button class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#editAdminCourseModal<?= $course['id'] ?>">Edit</button>
+                  </div>
+                </div>
+
+                <!-- Edit Course Modal for Admin -->
+                <div class="modal fade" id="editAdminCourseModal<?= $course['id'] ?>" tabindex="-1" aria-labelledby="editAdminCourseModalLabel<?= $course['id'] ?>" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <form action="<?= base_url('teacher/course/update/' . $course['id']) ?>" method="post">
+                        <?= csrf_field() ?>
+
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="editAdminCourseModalLabel<?= $course['id'] ?>">Edit Course</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <div class="modal-body">
+                          <div class="mb-3">
+                            <label for="adminTitle<?= $course['id'] ?>" class="form-label">Course Title</label>
+                            <input type="text" class="form-control" id="adminTitle<?= $course['id'] ?>" name="title" value="<?= esc($course['title']) ?>" required>
+                          </div>
+
+                          <div class="mb-3">
+                            <label for="adminDescription<?= $course['id'] ?>" class="form-label">Course Description</label>
+                            <textarea class="form-control" id="adminDescription<?= $course['id'] ?>" name="description" rows="3" required><?= esc($course['description']) ?></textarea>
+                          </div>
+
+                          <div class="mb-3">
+                            <label for="adminSemester<?= $course['id'] ?>" class="form-label">Semester</label>
+                            <select class="form-select" id="adminSemester<?= $course['id'] ?>" name="semester" required>
+                              <option value="">Select Semester</option>
+                              <option value="1st Semester" <?= (isset($course['semester']) && $course['semester'] === '1st Semester') ? 'selected' : '' ?>>1st Semester</option>
+                              <option value="2nd Semester" <?= (isset($course['semester']) && $course['semester'] === '2nd Semester') ? 'selected' : '' ?>>2nd Semester</option>
+                              <option value="Summer" <?= (isset($course['semester']) && $course['semester'] === 'Summer') ? 'selected' : '' ?>>Summer</option>
+                            </select>
+                          </div>
+
+                          <div class="mb-3">
+                            <label for="adminSchoolYear<?= $course['id'] ?>" class="form-label">School Year</label>
+                            <input type="text" class="form-control" id="adminSchoolYear<?= $course['id'] ?>" name="school_year" value="<?= esc($course['school_year'] ?? '2024-2025') ?>" placeholder="e.g., 2024-2025" required>
+                          </div>
+
+                          <div class="mb-3">
+                            <label for="adminClassTime<?= $course['id'] ?>" class="form-label">Time</label>
+                            <input type="text" class="form-control" id="adminClassTime<?= $course['id'] ?>" name="class_time" value="<?= esc($course['class_time'] ?? '') ?>" placeholder="e.g., MWF 9:00-10:00 AM">
+                          </div>
+                        </div>
+
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                          <button type="submit" class="btn btn-dark">Save Changes</button>
+                        </div>
+                      </form>
+                    </div>
                   </div>
                 </div>
               <?php endforeach; ?>
@@ -224,6 +311,77 @@
           <?php else: ?>
             <p class="text-muted text-center mt-3">No courses found.</p>
           <?php endif; ?>
+
+          <div class="text-center my-4">
+            <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#addAdminCourseModal">
+              <i class="bi bi-plus-circle me-1"></i> Add New Course
+            </button>
+          </div>
+
+          <!-- Add Course Modal for Admin -->
+          <div class="modal fade" id="addAdminCourseModal" tabindex="-1" aria-labelledby="addAdminCourseModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <form action="<?= base_url('admin/course/add') ?>" method="post">
+                  <?= csrf_field() ?>
+
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="addAdminCourseModalLabel">Add New Course</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+
+                  <div class="modal-body">
+                    <div class="mb-3">
+                      <label for="adminCourseTitle" class="form-label">Course Title</label>
+                      <input type="text" class="form-control" id="adminCourseTitle" name="title" required>
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="adminCourseDescription" class="form-label">Course Description</label>
+                      <textarea class="form-control" id="adminCourseDescription" name="description" rows="3" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="adminCourseTeacher" class="form-label">Select Teacher</label>
+                      <select class="form-select" id="adminCourseTeacher" name="teacher_id" required>
+                        <option value="">Select Teacher</option>
+                        <?php if (!empty($data['teachers'])): ?>
+                          <?php foreach ($data['teachers'] as $teacher): ?>
+                            <option value="<?= esc($teacher['id']) ?>"><?= esc($teacher['name']) ?> (<?= esc($teacher['email']) ?>)</option>
+                          <?php endforeach; ?>
+                        <?php endif; ?>
+                      </select>
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="adminCourseSemester" class="form-label">Semester</label>
+                      <select class="form-select" id="adminCourseSemester" name="semester" required>
+                        <option value="">Select Semester</option>
+                        <option value="1st Semester">1st Semester</option>
+                        <option value="2nd Semester">2nd Semester</option>
+                        <option value="Summer">Summer</option>
+                      </select>
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="adminCourseClassTime" class="form-label">Time</label>
+                      <input type="text" class="form-control" id="adminCourseClassTime" name="class_time" placeholder="e.g., MWF 9:00-10:00 AM">
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="adminCourseSchoolYear" class="form-label">School Year</label>
+                      <input type="text" class="form-control" id="adminCourseSchoolYear" name="school_year" placeholder="e.g., 2024-2025" required>
+                    </div>
+                  </div>
+
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-dark">Add Course</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
 
         <!--  TEACHER DASHBOARD  -->
         <?php elseif ($role === 'teacher'): ?>
@@ -249,7 +407,17 @@
                   <?php foreach ($data['enrollments'] as $enrollment): ?>
                     <?php
                       $status = strtolower($enrollment['status'] ?? 'pending');
-                      $badgeClass = $status === 'accepted' ? 'success' : ($status === 'declined' ? 'danger' : 'warning');
+                      // Map status to badge class and display label
+                      if ($status === 'accepted') {
+                        $badgeClass = 'success';
+                        $displayStatus = 'Enrolled';
+                      } elseif ($status === 'declined') {
+                        $badgeClass = 'danger';
+                        $displayStatus = 'Dropped';
+                      } else {
+                        $badgeClass = 'warning';
+                        $displayStatus = 'Pending';
+                      }
                     ?>
                     <tr>
                       <td>
@@ -258,10 +426,11 @@
                       </td>
                       <td>
                         <div class="fw-semibold"><?= esc($enrollment['course_title'] ?? 'Course') ?></div>
+                        <div class="text-dark small">Semester: <?= esc($enrollment['semester'] ?? 'Not set') ?></div>
                         <div class="text-dark small">Time: <?= esc($enrollment['class_time'] ?? 'N/A') ?></div>
                         <div class="text-dark small">SY: <?= esc($enrollment['school_year'] ?? 'N/A') ?></div>
                       </td>
-                      <td><span class="badge bg-<?= $badgeClass ?> text-uppercase"><?= esc($status) ?></span></td>
+                      <td><span class="badge bg-<?= $badgeClass ?> text-uppercase"><?= esc($displayStatus) ?></span></td>
                       <td class="text-center">
                         <?php if ($status === 'pending'): ?>
                           <form action="<?= base_url('teacher/enrollments/' . $enrollment['id'] . '/status') ?>" method="post" class="d-inline">
@@ -274,13 +443,43 @@
                             <input type="hidden" name="status" value="declined">
                             <button type="submit" class="btn btn-sm btn-outline-danger">Decline</button>
                           </form>
-                        <?php endif; ?>
-
-                        <?php if ($status !== 'pending'): ?>
-                          <form action="<?= base_url('teacher/enrollments/' . $enrollment['id'] . '/remove') ?>" method="post" class="d-inline" onsubmit="return confirm('Remove this student from the course?');">
-                            <?= csrf_field() ?>
-                            <button type="submit" class="btn btn-sm btn-outline-secondary">Remove</button>
-                          </form>
+                        <?php elseif ($status === 'accepted' || $status === 'declined'): ?>
+                          <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#updateEnrollmentModal<?= $enrollment['id'] ?>">
+                            Update
+                          </button>
+                          
+                          <!-- Update Enrollment Status Modal -->
+                          <div class="modal fade" id="updateEnrollmentModal<?= $enrollment['id'] ?>" tabindex="-1" aria-labelledby="updateEnrollmentModalLabel<?= $enrollment['id'] ?>" aria-hidden="true">
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <form action="<?= base_url('teacher/enrollments/' . $enrollment['id'] . '/status') ?>" method="post">
+                                  <?= csrf_field() ?>
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="updateEnrollmentModalLabel<?= $enrollment['id'] ?>">Update Enrollment Status</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body">
+                                    <p>Current Status: 
+                                      <span class="badge bg-<?= $status === 'accepted' ? 'success' : 'danger' ?>">
+                                        <?= $status === 'accepted' ? 'Enrolled' : 'Dropped' ?>
+                                      </span>
+                                    </p>
+                                    <div class="mb-3">
+                                      <label for="updateStatus<?= $enrollment['id'] ?>" class="form-label">Change Status To:</label>
+                                      <select class="form-select" id="updateStatus<?= $enrollment['id'] ?>" name="status" required>
+                                        <option value="accepted" <?= $status === 'accepted' ? 'selected' : '' ?>>Enrolled</option>
+                                        <option value="declined" <?= $status === 'declined' ? 'selected' : '' ?>>Dropped</option>
+                                      </select>
+                                    </div>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-warning">Update Status</button>
+                                  </div>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
                         <?php endif; ?>
                       </td>
                     </tr>
@@ -303,6 +502,7 @@
                     <h5 class="mb-1"><?= esc($course['title']); ?></h5>
                     <p class="text-muted mb-1"><?= esc($course['description']); ?></p>
                     <small class="text-dark d-block">Teacher: <?= esc(session()->get('name')) ?></small>
+                    <small class="text-dark d-block">Semester: <?= esc($course['semester'] ?? 'Not set') ?></small>
                     <small class="text-dark d-block">Time: <?= esc($course['class_time'] ?? 'TBA') ?></small>
                     <small class="text-dark d-block">SY: <?= esc($course['school_year'] ?? 'Set school year') ?></small>
                   </div>
@@ -338,6 +538,16 @@
                           </div>
 
                           <div class="mb-3">
+                            <label for="semester<?= $course['id'] ?>" class="form-label">Semester</label>
+                            <select class="form-select" id="semester<?= $course['id'] ?>" name="semester" required>
+                              <option value="">Select Semester</option>
+                              <option value="1st Semester" <?= (isset($course['semester']) && $course['semester'] === '1st Semester') ? 'selected' : '' ?>>1st Semester</option>
+                              <option value="2nd Semester" <?= (isset($course['semester']) && $course['semester'] === '2nd Semester') ? 'selected' : '' ?>>2nd Semester</option>
+                              <option value="Summer" <?= (isset($course['semester']) && $course['semester'] === 'Summer') ? 'selected' : '' ?>>Summer</option>
+                            </select>
+                          </div>
+
+                          <div class="mb-3">
                             <label for="school_year<?= $course['id'] ?>" class="form-label">School Year</label>
                             <input type="text" class="form-control" id="school_year<?= $course['id'] ?>" name="school_year" value="<?= esc($course['school_year'] ?? '2024-2025') ?>" placeholder="e.g., 2024-2025" required>
                           </div>
@@ -361,53 +571,6 @@
             <p class="text-muted text-center mt-3">No courses assigned yet.</p>
           <?php endif; ?>
 
-          <div class="text-center my-4">
-            <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#addCourseModal">
-              <i class="bi bi-plus-circle me-1"></i> Add New Course
-            </button>
-          </div>
-
-          <div class="modal fade" id="addCourseModal" tabindex="-1" aria-labelledby="addCourseModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <form action="<?= base_url('teacher/course/add') ?>" method="post">
-                  <?= csrf_field() ?>
-
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="addCourseModalLabel">Add New Course</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-
-                  <div class="modal-body">
-                    <div class="mb-3">
-                      <label for="title" class="form-label">Course Title</label>
-                      <input type="text" class="form-control" id="title" name="title" required>
-                    </div>
-
-                    <div class="mb-3">
-                      <label for="description" class="form-label">Course Description</label>
-                      <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                      <label for="class_time" class="form-label">Time</label>
-                      <input type="text" class="form-control" id="class_time" name="class_time" placeholder="e.g., MWF 9:00-10:00 AM">
-                    </div>
-
-                    <div class="mb-3">
-                      <label for="school_year" class="form-label">School Year</label>
-                      <input type="text" class="form-control" id="school_year" name="school_year" placeholder="e.g., 2024-2025" required>
-                    </div>
-                  </div>
-
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-dark">Save Course</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
 
 
           <?php if (!empty($data['materials'])): ?>
@@ -483,6 +646,7 @@
                     <div class="card-body">
                         <h5 class="card-title"><?= esc($course['title']) ?></h5>
                         <p class="card-text"><?= esc($course['description']) ?></p>
+                        <small class="text-muted d-block">Semester: <?= esc($course['semester'] ?? 'Not set') ?></small>
                         <a href="#" class="btn btn-dark">View Course</a>
                     </div>
                 </div>
@@ -611,6 +775,114 @@ $(document).ready(function () {
                 );
             }
         });
+    });
+
+    // USER MANAGEMENT VALIDATION
+    // Real-time name validation - prevent special characters and numbers
+    $('#name').on('input', function() {
+        var nameInput = $(this);
+        var name = nameInput.val().trim();
+        var namePattern = /^[A-Za-z][A-Za-z\s\.\'\-]*$/;
+        
+        if (name === '') {
+            nameInput.removeClass('is-valid is-invalid');
+            nameInput.siblings('.invalid-feedback').text('');
+        } else if (!namePattern.test(name)) {
+            nameInput.removeClass('is-valid').addClass('is-invalid');
+            nameInput.siblings('.invalid-feedback').text('Name can only contain letters, spaces, periods (.), apostrophes (\'), and hyphens (-). No numbers or special characters allowed.');
+        } else {
+            nameInput.removeClass('is-invalid').addClass('is-valid');
+            nameInput.siblings('.invalid-feedback').text('');
+        }
+    });
+
+    // Real-time email validation with duplicate check
+    var emailCheckTimeout;
+    $('#email').on('input', function() {
+        var emailInput = $(this);
+        var email = emailInput.val().trim();
+        var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        clearTimeout(emailCheckTimeout);
+        
+        if (email === '') {
+            emailInput.removeClass('is-valid is-invalid');
+            emailInput.siblings('.invalid-feedback').text('');
+        } else if (!emailPattern.test(email)) {
+            emailInput.removeClass('is-valid').addClass('is-invalid');
+            emailInput.siblings('.invalid-feedback').text('Please enter a valid email address.');
+        } else {
+            // Format is valid - check for duplicates via AJAX (with debounce)
+            emailCheckTimeout = setTimeout(function() {
+                emailInput.removeClass('is-valid is-invalid');
+                
+                // Get CSRF token from form
+                var csrfTokenName = '<?= csrf_token() ?>';
+                var csrfTokenValue = $('#addUserForm input[name="' + csrfTokenName + '"]').val() || '<?= csrf_hash() ?>';
+                
+                // Check for duplicate email
+                $.ajax({
+                    url: '<?= base_url("admin/user/check-email") ?>',
+                    method: 'POST',
+                    data: {
+                        email: email,
+                        [csrfTokenName]: csrfTokenValue
+                    },
+                    success: function(response) {
+                        if (response.exists) {
+                            // Email already taken - show red border and error
+                            emailInput.removeClass('is-valid').addClass('is-invalid');
+                            emailInput.siblings('.invalid-feedback').text('❌ This email address is already taken. Please use a different email.');
+                        } else {
+                            // Email is available - show green border
+                            emailInput.removeClass('is-invalid').addClass('is-valid');
+                            emailInput.siblings('.invalid-feedback').text('');
+                        }
+                    },
+                    error: function() {
+                        // On error, just validate format (don't block)
+                        emailInput.removeClass('is-invalid').addClass('is-valid');
+                        emailInput.siblings('.invalid-feedback').text('');
+                    }
+                });
+            }, 500); // Wait 500ms after user stops typing before checking
+        }
+    });
+
+    // Real-time password validation
+    $('#password').on('input', function() {
+        var passwordInput = $(this);
+        var password = passwordInput.val();
+        
+        if (password === '') {
+            passwordInput.removeClass('is-valid is-invalid');
+            passwordInput.siblings('.invalid-feedback').text('');
+        } else if (password.length < 6) {
+            passwordInput.removeClass('is-valid').addClass('is-invalid');
+            passwordInput.siblings('.invalid-feedback').text('Password must be at least 6 characters long.');
+        } else {
+            passwordInput.removeClass('is-invalid').addClass('is-valid');
+            passwordInput.siblings('.invalid-feedback').text('');
+        }
+    });
+
+    // Real-time role validation
+    $('#role').on('change', function() {
+        var roleInput = $(this);
+        if (roleInput.val() === '' || roleInput.val() === null) {
+            roleInput.removeClass('is-valid').addClass('is-invalid');
+            roleInput.siblings('.invalid-feedback').text('Please select a role.');
+        } else {
+            roleInput.removeClass('is-invalid').addClass('is-valid');
+            roleInput.siblings('.invalid-feedback').text('');
+        }
+    });
+
+    // Reset form validation when modal is closed
+    $('#addUserModal').on('hidden.bs.modal', function() {
+        $(this).find('form')[0].reset();
+        $(this).find('.is-invalid, .is-valid').removeClass('is-invalid is-valid');
+        $(this).find('.invalid-feedback').text('');
     });
 });
 </script>

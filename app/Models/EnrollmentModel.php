@@ -13,9 +13,10 @@ class EnrollmentModel extends Model
 
     public function getUserEnrollments(int $userId, ?string $status = 'accepted'): array
     {
-        $builder = $this->select('enrollments.*, courses.title, courses.description, courses.school_year, courses.class_time, courses.teacher_id, users.name AS student_name, users.email AS student_email')
+        $builder = $this->select('enrollments.*, courses.title, courses.description, courses.semester, courses.school_year, courses.class_time, courses.teacher_id, users.name AS student_name, users.email AS student_email, teacher.name AS teacher_name')
             ->join('courses', 'courses.id = enrollments.course_id', 'left')
             ->join('users', 'users.id = enrollments.user_id', 'left')
+            ->join('users as teacher', 'teacher.id = courses.teacher_id', 'left')
             ->where('enrollments.user_id', $userId);
 
         if ($status !== null) {
@@ -27,7 +28,7 @@ class EnrollmentModel extends Model
 
     public function getEnrollmentsForTeacher(int $teacherId, ?string $status = null): array
     {
-        $builder = $this->select('enrollments.*, users.name AS student_name, users.email AS student_email, courses.title AS course_title, courses.school_year, courses.class_time, courses.teacher_id')
+        $builder = $this->select('enrollments.*, users.name AS student_name, users.email AS student_email, courses.title AS course_title, courses.semester, courses.school_year, courses.class_time, courses.teacher_id')
             ->join('courses', 'courses.id = enrollments.course_id', 'left')
             ->join('users', 'users.id = enrollments.user_id', 'left')
             ->where('courses.teacher_id', $teacherId);

@@ -30,6 +30,7 @@ use CodeIgniter\Router\RouteCollection;
         $routes->post('courses/enroll', 'Course::enroll');
         $routes->get('/studentCourse', 'Auth::studentCourse');
         $routes->post('teacher/course/add', 'Auth::addCourse');
+        $routes->post('admin/course/add', 'Auth::addCourse');
         $routes->post('teacher/course/update/(:num)', 'Course::updateCourse/$1');
         $routes->post('teacher/enrollments/(:num)/status', 'Course::updateEnrollmentStatus/$1');
         $routes->post('teacher/enrollments/(:num)/remove', 'Course::removeEnrollment/$1');
@@ -60,12 +61,10 @@ use CodeIgniter\Router\RouteCollection;
         $routes->post('/courses/search', 'Course::search');
 
         // User Management - Admin Only
-               
+        $routes->post('admin/user/check-email', 'AdminController::checkEmail');
         $routes->post('admin/user/add', 'AdminController::addUser');
         $routes->post('admin/user/edit/(:num)', 'AdminController::editUser/$1');
         $routes->get('admin/user/delete/(:num)', 'AdminController::deleteUser/$1');
-        
-$routes->post('admin/user/add', 'AdminController::addUser');
 
 
 

@@ -169,18 +169,35 @@ class Course extends BaseController
             return redirect()->back()->with('error', 'Enrollment not found or not assigned to you.');
         }
 
+        $oldStatus = strtolower($enrollment['status'] ?? '');
         $enrollmentModel->update($enrollmentId, [
             'status' => $status,
             'teacher_id' => $teacherId,
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
+        // Create appropriate notification message based on status change
+        $statusLabel = $status === 'accepted' ? 'enrolled' : 'dropped';
+        $message = "Your enrollment for '{$enrollment['course_title']}' status has been updated to {$statusLabel}.";
+        
+        // If declining a pending enrollment, use different message
+        if ($oldStatus === 'pending' && $status === 'declined') {
+            $message = "Your enrollment request for '{$enrollment['course_title']}' was declined by the teacher.";
+        } elseif ($oldStatus === 'pending' && $status === 'accepted') {
+            $message = "Your enrollment request for '{$enrollment['course_title']}' was accepted. You are now enrolled.";
+        } elseif ($oldStatus === 'accepted' && $status === 'declined') {
+            $message = "You have been dropped from '{$enrollment['course_title']}' by the teacher.";
+        } elseif ($oldStatus === 'accepted' && $status === 'accepted') {
+            $message = "Your enrollment status for '{$enrollment['course_title']}' remains enrolled.";
+        }
+
         $notificationModel->createNotification(
             (int) $enrollment['user_id'],
-            "Your enrollment for '{$enrollment['course_title']}' was {$status} by the teacher."
+            $message
         );
 
-        return redirect()->back()->with('success', 'Enrollment status updated.');
+        $successMessage = $status === 'accepted' ? 'Student enrolled successfully.' : 'Student dropped successfully.';
+        return redirect()->back()->with('success', $successMessage);
     }
 
     public function removeEnrollment(int $enrollmentId)
@@ -212,20 +229,29 @@ class Course extends BaseController
     public function updateCourse(int $courseId)
     {
         $session = session();
-        if (! $session->get('isLoggedIn') || strtolower($session->get('role')) !== 'teacher') {
+        $role = strtolower((string) $session->get('role'));
+        
+        if (! $session->get('isLoggedIn') || !in_array($role, ['teacher', 'admin'], true)) {
             return redirect()->to(base_url('dashboard'))->with('error', 'Access denied.');
         }
 
-        $teacherId = (int) $session->get('userID');
         $course = $this->courseModel->find($courseId);
+        if (! $course) {
+            return redirect()->back()->with('error', 'Course not found.');
+        }
 
-        if (! $course || (int) ($course['teacher_id'] ?? 0) !== $teacherId) {
-            return redirect()->back()->with('error', 'Course not found or not assigned to you.');
+        // If teacher, check if course belongs to them. Admin can edit any course.
+        if ($role === 'teacher') {
+            $teacherId = (int) $session->get('userID');
+            if ((int) ($course['teacher_id'] ?? 0) !== $teacherId) {
+                return redirect()->back()->with('error', 'Course not found or not assigned to you.');
+            }
         }
 
         $data = [
             'title' => trim((string) $this->request->getPost('title')),
             'description' => trim((string) $this->request->getPost('description')),
+            'semester' => trim((string) $this->request->getPost('semester')),
             'school_year' => trim((string) $this->request->getPost('school_year')),
             'class_time' => trim((string) $this->request->getPost('class_time')),
         ];

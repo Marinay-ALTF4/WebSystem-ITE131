@@ -45,6 +45,8 @@
                         <div>
                           <div class="fw-semibold"><?= esc($course['title']) ?></div>
                           <small class="text-dark d-block"><?= esc($course['description']) ?></small>
+                          <small class="text-dark d-block">Teacher: <?= esc($course['teacher_name'] ?? 'TBD') ?></small>
+                          <small class="text-dark d-block">Semester: <?= esc($course['semester'] ?? 'Not set') ?></small>
                           <small class="text-dark d-block">Time: <?= esc($course['class_time'] ?? 'TBD') ?></small>
                           <small class="text-dark d-block">SY: <?= esc($course['school_year'] ?? 'TBD') ?></small>
                         </div>
@@ -93,6 +95,7 @@
                           <div class="fw-semibold"><?= esc($course['title']) ?></div>
                           <small class="text-dark d-block"><?= esc($course['description']) ?></small>
                           <small class="text-dark d-block">Teacher: <?= esc($course['teacher_name'] ?? 'TBD') ?></small>
+                          <small class="text-dark d-block">Semester: <?= esc($course['semester'] ?? 'Not set') ?></small>
                           <small class="text-dark d-block">Time: <?= esc($course['class_time'] ?? 'TBD') ?></small>
                           <small class="text-dark d-block">SY: <?= esc($course['school_year'] ?? 'TBD') ?></small>
                         </div>
