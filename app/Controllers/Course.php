@@ -170,11 +170,18 @@ class Course extends BaseController
         }
 
         $oldStatus = strtolower($enrollment['status'] ?? '');
-        $enrollmentModel->update($enrollmentId, [
-            'status' => $status,
-            'teacher_id' => $teacherId,
-            'updated_at' => date('Y-m-d H:i:s'),
-        ]);
+        $pendingDeclineRemoval = $oldStatus === 'pending' && $status === 'declined';
+
+        if ($pendingDeclineRemoval) {
+            // Remove pending requests once declined so they disappear from the table.
+            $enrollmentModel->delete($enrollmentId);
+        } else {
+            $enrollmentModel->update($enrollmentId, [
+                'status' => $status,
+                'teacher_id' => $teacherId,
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+        }
 
         // Create appropriate notification message based on status change
         $statusLabel = $status === 'accepted' ? 'enrolled' : 'dropped';
@@ -196,7 +203,9 @@ class Course extends BaseController
             $message
         );
 
-        $successMessage = $status === 'accepted' ? 'Student enrolled successfully.' : 'Student dropped successfully.';
+        $successMessage = $pendingDeclineRemoval
+            ? 'Enrollment request declined and removed.'
+            : ($status === 'accepted' ? 'Student enrolled successfully.' : 'Student dropped successfully.');
         return redirect()->back()->with('success', $successMessage);
     }
 
