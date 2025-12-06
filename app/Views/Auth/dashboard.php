@@ -133,6 +133,7 @@
 
 <!-- User List -->
 <?php if (!empty($data['users'])): ?>
+  <?php $currentUserId = (int)(session()->get('userID') ?? 0); ?>
   <div class="table-responsive mt-3">
     <table class="table table-striped table-bordered align-middle">
       <thead class="table-primary">
@@ -146,23 +147,48 @@
       </thead>
       <tbody>
         <?php foreach ($data['users'] as $user): ?>
-          <tr>
+          <?php
+            $isDeleted = !empty($user['deleted_at']);
+            $isCurrent = ((int)$user['id'] === $currentUserId);
+          ?>
+          <tr class="<?= $isDeleted ? 'table-secondary' : '' ?>">
             <td><?= (int)$user['id'] ?></td>
-            <td><?= esc($user['name']) ?></td>
-            <td><?= esc($user['email']) ?></td>
-            <td><?= esc(ucfirst($user['role'])) ?></td>
             <td>
-              <!-- Edit Button -->
-              <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editUserModal<?= $user['id'] ?>">
-                <i class="bi bi-pencil"></i> Edit
-              </button>
+              <?= esc($user['name']) ?>
+              <?php if ($isCurrent): ?>
+              <?php endif; ?>
+            </td>
+            <td class="text-break"><?= esc($user['email']) ?></td>
+            <td>
+              <?= esc(ucfirst($user['role'])) ?>
+              <?php if ($isDeleted): ?>
+                <span class="badge bg-secondary ms-1">Deleted</span>
+              <?php endif; ?>
+            </td>
+            <td class="d-flex flex-wrap gap-2">
+              <?php if (! $isDeleted): ?>
+                <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editUserModal<?= $user['id'] ?>">
+                  <i class="bi bi-pencil"></i> Edit
+                </button>
 
-              <!-- Delete Button -->
-              <a href="<?= base_url('admin/user/delete/' . $user['id']) ?>" 
-                class="btn btn-sm btn-danger" 
-                onclick="return confirm('Are you sure you want to delete this user?')">
-                <i class="bi bi-trash"></i> Delete
-              </a>
+                <?php if (! $isCurrent): ?>
+                  <form action="<?= base_url('admin/user/delete/' . $user['id']) ?>" method="post" class="d-inline">
+                    <?= csrf_field() ?>
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this user?')">
+                      <i class="bi bi-trash"></i> Delete
+                    </button>
+                  </form>
+                <?php else: ?>
+                  <span class="badge bg-light text-dark border">Current user</span>
+                <?php endif; ?>
+              <?php else: ?>
+                <form action="<?= base_url('admin/user/restore/' . $user['id']) ?>" method="post" class="d-inline">
+                  <?= csrf_field() ?>
+                  <button type="submit" class="btn btn-sm btn-success">
+                    <i class="bi bi-arrow-counterclockwise"></i> Restore
+                  </button>
+                </form>
+              <?php endif; ?>
             </td>
           </tr>
 
@@ -191,12 +217,21 @@
 
                     <div class="mb-3">
                       <label for="role<?= $user['id'] ?>" class="form-label">Role</label>
-                      <select class="form-select" id="role<?= $user['id'] ?>" name="role" required>
+                      <select class="form-select" id="role<?= $user['id'] ?>" name="role" required <?= $isCurrent ? 'disabled' : '' ?>>
                         <option value="">Select Role</option>
                         <option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
                         <option value="teacher" <?= $user['role'] === 'teacher' ? 'selected' : '' ?>>Teacher</option>
                         <option value="student" <?= $user['role'] === 'student' ? 'selected' : '' ?>>Student</option>
                       </select>
+                      <?php if ($isCurrent): ?>
+                        <input type="hidden" name="role" value="<?= esc($user['role']) ?>">
+                        <small class="text-muted">You cannot change your own role.</small>
+                      <?php endif; ?>
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="password<?= $user['id'] ?>" class="form-label">New Password (optional)</label>
+                      <input type="password" class="form-control" id="password<?= $user['id'] ?>" name="password" minlength="6" placeholder="Leave blank to keep current password">
                     </div>
                   </div>
 
@@ -829,6 +864,12 @@ $(document).ready(function () {
                         [csrfTokenName]: csrfTokenValue
                     },
                     success: function(response) {
+                    // Update CSRF token with the refreshed value returned by the server
+                    if (response.csrfTokenName && response.csrfTokenValue) {
+                      csrfTokenValue = response.csrfTokenValue;
+                      $('#addUserForm input[name="' + response.csrfTokenName + '"]').val(response.csrfTokenValue);
+                    }
+
                         if (response.exists) {
                             // Email already taken - show red border and error
                             emailInput.removeClass('is-valid').addClass('is-invalid');

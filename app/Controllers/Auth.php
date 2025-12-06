@@ -129,6 +129,8 @@ class Auth extends BaseController
         case 'admin':
             $data['usersCount'] = $userModel->countAllResults();
             $data['recentUsers'] = $userModel->orderBy('id', 'DESC')->limit(5)->find();
+            // Include all users (active + soft-deleted) for admin management
+            $data['users'] = $userModel->withDeleted()->orderBy('id', 'DESC')->findAll();
             // Get courses with teacher names
             $data['courses'] = $courseModel->select('courses.*, users.name AS teacher_name')
                 ->join('users', 'users.id = courses.teacher_id', 'left')

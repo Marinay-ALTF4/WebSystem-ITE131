@@ -64,7 +64,8 @@ use CodeIgniter\Router\RouteCollection;
         $routes->post('admin/user/check-email', 'AdminController::checkEmail');
         $routes->post('admin/user/add', 'AdminController::addUser');
         $routes->post('admin/user/edit/(:num)', 'AdminController::editUser/$1');
-        $routes->get('admin/user/delete/(:num)', 'AdminController::deleteUser/$1');
+        $routes->post('admin/user/delete/(:num)', 'AdminController::deleteUser/$1');
+        $routes->post('admin/user/restore/(:num)', 'AdminController::restoreUser/$1');
 
 
 
