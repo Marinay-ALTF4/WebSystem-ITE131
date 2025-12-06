@@ -275,6 +275,13 @@
                             <button type="submit" class="btn btn-sm btn-outline-danger">Decline</button>
                           </form>
                         <?php endif; ?>
+
+                        <?php if ($status !== 'pending'): ?>
+                          <form action="<?= base_url('teacher/enrollments/' . $enrollment['id'] . '/remove') ?>" method="post" class="d-inline" onsubmit="return confirm('Remove this student from the course?');">
+                            <?= csrf_field() ?>
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">Remove</button>
+                          </form>
+                        <?php endif; ?>
                       </td>
                     </tr>
                   <?php endforeach; ?>
