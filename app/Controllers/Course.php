@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\EnrollmentModel;
 use App\Models\NotificationModel;
 use App\Models\CourseModel;
+use App\Models\MaterialModel;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class Course extends BaseController
@@ -268,5 +269,37 @@ class Course extends BaseController
         $this->courseModel->update($courseId, $data);
 
         return redirect()->back()->with('success', 'Course details updated.');
+    }
+
+    public function deleteCourse(int $courseId)
+    {
+        $session = session();
+        $role = strtolower((string) $session->get('role'));
+
+        if (! $session->get('isLoggedIn') || $role !== 'admin') {
+            return redirect()->to(base_url('dashboard'))->with('error', 'Access denied.');
+        }
+
+        $course = $this->courseModel->find($courseId);
+        if (! $course) {
+            return redirect()->back()->with('error', 'Course not found.');
+        }
+
+        $materialModel = new MaterialModel();
+        $enrollmentModel = new EnrollmentModel();
+
+        $materials = $materialModel->where('course_id', $courseId)->findAll();
+        foreach ($materials as $material) {
+            $path = FCPATH . $material['file_path'];
+            if (! empty($material['file_path']) && is_file($path)) {
+                @unlink($path); // best-effort cleanup
+            }
+        }
+
+        $materialModel->where('course_id', $courseId)->delete();
+        $enrollmentModel->where('course_id', $courseId)->delete();
+        $this->courseModel->delete($courseId);
+
+        return redirect()->back()->with('success', 'Course deleted successfully.');
     }
 }

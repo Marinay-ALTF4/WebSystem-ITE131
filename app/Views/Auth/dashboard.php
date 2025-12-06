@@ -258,6 +258,10 @@
                       Add Material
                     </a>
                     <button class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#editAdminCourseModal<?= $course['id'] ?>">Edit</button>
+                    <form action="<?= base_url('admin/course/delete/' . $course['id']); ?>" method="post" class="m-0" onsubmit="return confirm('Delete this course? This will remove its enrollments and materials.');">
+                      <?= csrf_field() ?>
+                      <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                    </form>
                   </div>
                 </div>
 
