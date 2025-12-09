@@ -1,6 +1,9 @@
 # Ignore composer vendor (if installed locally)
 vendor/
 
+# Public uploads
+uploads/materials/
+
 # CodeIgniter writable directories
 writable/cache/
 writable/logs/

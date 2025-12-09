@@ -2,6 +2,7 @@
 <div class="modal fade" id="addCourseModal" tabindex="-1" aria-labelledby="addCourseModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <form action="<?= base_url('teacher/course/add') ?>" method="post">
+      <?= csrf_field() ?>
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="addCourseModalLabel">Add New Course</h5>

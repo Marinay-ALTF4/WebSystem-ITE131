@@ -529,8 +529,8 @@ class Course extends BaseController
         $assignmentType = trim((string) $this->request->getPost('assignment_type'));
         $submitType = trim((string) $this->request->getPost('submit_type'));
         $attempts = (string) $this->request->getPost('attempts');
-        $dueDate = $this->request->getPost('due_date');
-        $availableAfter = $this->request->getPost('available_after');
+        $dueDateInput = trim((string) $this->request->getPost('due_date'));
+        $availableAfterInput = trim((string) $this->request->getPost('available_after'));
 
         if ($title === '' || $assignmentType === '' || $submitType === '') {
             return redirect()->back()->with('error', 'Please fill in all required fields.');
@@ -554,7 +554,31 @@ class Course extends BaseController
         }
 
         $assignmentModel = new AssignmentModel();
-        $now = date('Y-m-d H:i:s');
+        $nowTimestamp = time();
+        $now = date('Y-m-d H:i:s', $nowTimestamp);
+
+        $dueDate = null;
+        if ($dueDateInput !== '') {
+            $dueTimestamp = strtotime($dueDateInput);
+            if ($dueTimestamp === false) {
+                return redirect()->back()->with('error', 'Invalid due date.');
+            }
+
+            if ($dueTimestamp <= $nowTimestamp) {
+                return redirect()->back()->with('error', 'Due date must be after the creation time.');
+            }
+
+            $dueDate = date('Y-m-d H:i:s', $dueTimestamp);
+        }
+
+        $availableAfter = null;
+        if ($availableAfterInput !== '') {
+            $availableTimestamp = strtotime($availableAfterInput);
+            if ($availableTimestamp === false) {
+                return redirect()->back()->with('error', 'Invalid availability date.');
+            }
+            $availableAfter = date('Y-m-d H:i:s', $availableTimestamp);
+        }
 
         $assignmentId = $assignmentModel->insert([
             'course_id' => $courseId,
@@ -565,8 +589,8 @@ class Course extends BaseController
             'assignment_type' => $assignmentType,
             'submit_type' => $submitType,
             'attempts_allowed' => $attemptsAllowed,
-            'due_date' => $dueDate ?: null,
-            'available_after' => $availableAfter ?: null,
+            'due_date' => $dueDate,
+            'available_after' => $availableAfter,
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -791,6 +815,12 @@ class Course extends BaseController
             return redirect()->to(base_url('dashboard'))->with('error', 'You are not enrolled in this course.');
         }
 
+        $availableAfter = $assignment['available_after'] ?? null;
+        $nowTimestamp = time();
+        if ($availableAfter && strtotime($availableAfter) > $nowTimestamp) {
+            return redirect()->back()->with('error', 'Submission is not yet available.');
+        }
+
         $submitType = strtolower((string) ($assignment['submit_type'] ?? 'text'));
         $content = null;
         $filePath = null;
@@ -812,7 +842,7 @@ class Course extends BaseController
         }
 
         $submissionModel = new AssignmentSubmissionModel();
-        $now = date('Y-m-d H:i:s');
+        $now = date('Y-m-d H:i:s', $nowTimestamp);
 
         $existing = $submissionModel
             ->where('assignment_id', $assignmentId)

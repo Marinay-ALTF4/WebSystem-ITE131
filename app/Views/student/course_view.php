@@ -63,8 +63,13 @@ include('app/Views/templates/header.php');
                 <span class="badge bg-dark">Total: <?= count($assignments ?? []) ?></span>
               </div>
               <?php if (!empty($assignments)): ?>
+                <?php $nowTs = time(); ?>
                 <div class="list-group list-group-flush">
                   <?php foreach ($assignments as $a): ?>
+                    <?php
+                      $availableTs = !empty($a['available_after']) ? strtotime($a['available_after']) : null;
+                      $isAvailable = $availableTs === null || $availableTs <= $nowTs;
+                    ?>
                     <div class="list-group-item">
                       <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
                         <div>
@@ -95,6 +100,8 @@ include('app/Views/templates/header.php');
                         </div>
                           <?php if (!empty($a['submission'])): ?>
                             <button class="btn btn-sm btn-success" disabled>Submitted</button>
+                          <?php elseif (! $isAvailable): ?>
+                            <button class="btn btn-sm btn-outline-secondary" disabled title="Available after <?= esc(date('M d, Y h:i A', $availableTs)) ?>">Not available yet</button>
                           <?php else: ?>
                             <button class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#submitModal<?= $a['id'] ?>">Submit</button>
                           <?php endif; ?>
