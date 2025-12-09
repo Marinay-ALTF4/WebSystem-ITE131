@@ -34,10 +34,18 @@ use CodeIgniter\Router\RouteCollection;
         $routes->post('teacher/course/add', 'Auth::addCourse');
         $routes->post('admin/course/add', 'Auth::addCourse');
         $routes->get('admin/courses', 'AdminController::courses');
+        $routes->get('teacher/course/(:num)', 'Course::teacherCourse/$1');
+        $routes->post('teacher/course/(:num)/enroll-student', 'Course::enrollExistingStudent/$1');
+        $routes->post('teacher/course/(:num)/assignments', 'Course::createAssignment/$1');
         $routes->post('teacher/course/update/(:num)', 'Course::updateCourse/$1');
         $routes->post('admin/course/delete/(:num)', 'Course::deleteCourse/$1');
         $routes->post('teacher/enrollments/(:num)/status', 'Course::updateEnrollmentStatus/$1');
         $routes->post('teacher/enrollments/(:num)/remove', 'Course::removeEnrollment/$1');
+        $routes->get('student/course/(:num)', 'Course::studentCourseView/$1');
+        $routes->get('teacher/course/(:num)/assignments/(:num)', 'Course::teacherAssignment/$1/$2');
+        $routes->post('student/assignments/(:num)/submit', 'Course::submitAssignment/$1');
+        $routes->get('teacher/assignments/(:num)/submissions/(:num)', 'Course::viewSubmission/$1/$2');
+        $routes->post('teacher/assignments/(:num)/submissions/(:num)/grade', 'Course::gradeSubmission/$1/$2');
         
         $routes->post('admin/registerUser', 'AdminController::registerUser');
 

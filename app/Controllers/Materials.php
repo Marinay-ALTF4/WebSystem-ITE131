@@ -53,7 +53,10 @@ class Materials extends BaseController
                     $course = $courseModel->find($course_id);
                     $courseTitle = $course ? $course['title'] : 'Course';
                     
-                    $students = $enrollmentModel->where('course_id', $course_id)->findAll();
+                    $students = $enrollmentModel
+                        ->where('course_id', $course_id)
+                        ->where('status', 'accepted')
+                        ->findAll();
                     
                     foreach ($students as $student) {
                         $notificationModel->createNotification(

@@ -37,7 +37,7 @@ $isPath = function (string $path) use ($currentPath): bool {
 
         <?php elseif ($role === 'teacher'): ?>
           <li class="nav-item me-2"><a class="btn btn-outline-light btn-nav px-3 py-1 fs-6 <?= $isPath('dashboard') ? 'active' : '' ?>" href="<?= base_url('dashboard') ?>">Dashboard</a></li>
-          <li class="nav-item me-2"><a class="btn btn-outline-light btn-nav px-3 py-1 fs-6" href="#">File Upload</a></li>
+          <li class="nav-item me-2"><a class="btn btn-outline-light btn-nav px-3 py-1 fs-6" href="<?= base_url('dashboard') ?>">Assignments</a></li>
 
         <?php elseif ($role === 'student'): ?>
           <li class="nav-item me-2"><a class="btn btn-outline-light btn-nav px-3 py-1 fs-6 <?= $isPath('dashboard') ? 'active' : '' ?>" href="<?= base_url('dashboard') ?>">Dashboard</a></li>
@@ -57,7 +57,7 @@ $isPath = function (string $path) use ($currentPath): bool {
             <ul class="dropdown-menu dropdown-menu-end shadow-lg" style="width:350px;max-height:400px;overflow-y:auto;">
               <li class="dropdown-header d-flex justify-content-between align-items-center border-bottom bg-light">
                 <strong>Notifications</strong>
-                <button id="markAllRead" class="btn btn-sm btn-link p-0 text-primary">Mark all</button>
+                <button id="markAllRead" class="btn btn-sm btn-link p-0 text-dark">Mark all</button>
               </li>
               <div id="notifList" class="p-2"></div>
             </ul>
@@ -93,7 +93,7 @@ $(function(){
                 <strong>${n.message}</strong><br>
                 <small class="text-muted">${new Date(n.created_at).toLocaleDateString()}</small>
               </div>
-              ${!isRead?`<button class="btn btn-sm btn-outline-primary mark" data-id="${n.id}">Read</button>`:''}
+              ${!isRead?`<button class="btn btn-sm btn-outline-dark mark" data-id="${n.id}">Read</button>`:''}
             </div>
           </div>`);
       });

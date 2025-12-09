@@ -171,9 +171,19 @@ class Auth extends BaseController
             $materialModel = new \App\Models\MaterialModel();
             $data['materials'] = [];
 
+            // Assignments per enrolled course
+            $assignmentModel = new \App\Models\AssignmentModel();
+            $data['assignmentsByCourse'] = [];
+
             foreach ($data['courses'] as $course) {
                 $courseMaterials = $materialModel->where('course_id', $course['course_id'])->findAll();
                 $data['materials'] = array_merge($data['materials'], $courseMaterials);
+
+                $data['assignmentsByCourse'][$course['course_id']] = $assignmentModel
+                    ->where('course_id', $course['course_id'])
+                    ->orderBy('due_date', 'ASC')
+                    ->orderBy('created_at', 'DESC')
+                    ->findAll();
             }
             break;
     }
@@ -205,13 +215,23 @@ public function studentCourse()
     $userModel = new UserModel();
     $enrollmentModel = new EnrollmentModel();
     $notificationModel = new \App\Models\NotificationModel();
+    $assignmentModel = new \App\Models\AssignmentModel();
 
     $data = [
         'enrolledCourses'  => $enrollmentModel->getUserEnrollments($userId, 'accepted'),
         'pendingCourses'   => $enrollmentModel->getUserEnrollments($userId, 'pending'),
         'availableCourses' => $enrollmentModel->getAvailableCoursesForUser($userId),
-        'notifications'    => $notificationModel->getNotificationsForUser($userId)
+        'notifications'    => $notificationModel->getNotificationsForUser($userId),
+        'assignmentsByCourse' => [],
     ];
+
+    foreach ($data['enrolledCourses'] as $course) {
+        $data['assignmentsByCourse'][$course['course_id']] = $assignmentModel
+            ->where('course_id', $course['course_id'])
+            ->orderBy('due_date', 'ASC')
+            ->orderBy('created_at', 'DESC')
+            ->findAll();
+    }
 
     return view('auth/studentCourse', [
         'role' => $role,

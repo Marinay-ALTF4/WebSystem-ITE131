@@ -262,109 +262,10 @@
         <?php elseif ($role === 'teacher'): ?>
           <h4 class="mb-3"><i class="bi bi-journal-text me-2"></i>Teacher Dashboard</h4>
 
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <h5 class="mb-0">My Students</h5>
-            <span class="badge bg-dark">Pending: <?= count($data['pendingEnrollments'] ?? []) ?></span>
+          <div class="alert alert-info d-flex align-items-center gap-2" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <div>Manage student requests per course. Open a course below to accept or decline enrollments on its dashboard.</div>
           </div>
-
-          <?php if (!empty($data['enrollments'])): ?>
-            <div class="table-responsive mb-4">
-              <table class="table table-striped table-bordered align-middle">
-                <thead class="table-dark">
-                  <tr>
-                    <th>Student</th>
-                    <th>Course</th>
-                    <th>Status</th>
-                    <th class="text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <?php foreach ($data['enrollments'] as $enrollment): ?>
-                    <?php
-                      $status = strtolower($enrollment['status'] ?? 'pending');
-                      // Map status to badge class and display label
-                      if ($status === 'accepted') {
-                        $badgeClass = 'success';
-                        $displayStatus = 'Enrolled';
-                      } elseif ($status === 'declined') {
-                        $badgeClass = 'danger';
-                        $displayStatus = 'Dropped';
-                      } else {
-                        $badgeClass = 'warning';
-                        $displayStatus = 'Pending';
-                      }
-                    ?>
-                    <tr>
-                      <td>
-                        <div class="fw-semibold"><?= esc($enrollment['student_name'] ?? 'Student') ?></div>
-                        <div class="text-muted small"><?= esc($enrollment['student_email'] ?? '') ?></div>
-                      </td>
-                      <td>
-                        <div class="fw-semibold"><?= esc($enrollment['course_title'] ?? 'Course') ?></div>
-                        <div class="text-dark small">Semester: <?= esc($enrollment['semester'] ?? 'Not set') ?></div>
-                        <div class="text-dark small">Time: <?= esc($enrollment['class_time'] ?? 'N/A') ?></div>
-                        <div class="text-dark small">SY: <?= esc($enrollment['school_year'] ?? 'N/A') ?></div>
-                      </td>
-                      <td><span class="badge bg-<?= $badgeClass ?> text-uppercase"><?= esc($displayStatus) ?></span></td>
-                      <td class="text-center">
-                        <?php if ($status === 'pending'): ?>
-                          <form action="<?= base_url('teacher/enrollments/' . $enrollment['id'] . '/status') ?>" method="post" class="d-inline">
-                            <?= csrf_field() ?>
-                            <input type="hidden" name="status" value="accepted">
-                            <button type="submit" class="btn btn-sm btn-success">Accept</button>
-                          </form>
-                          <form action="<?= base_url('teacher/enrollments/' . $enrollment['id'] . '/status') ?>" method="post" class="d-inline">
-                            <?= csrf_field() ?>
-                            <input type="hidden" name="status" value="declined">
-                            <button type="submit" class="btn btn-sm btn-outline-danger">Decline</button>
-                          </form>
-                        <?php elseif ($status === 'accepted' || $status === 'declined'): ?>
-                          <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#updateEnrollmentModal<?= $enrollment['id'] ?>">
-                            Update
-                          </button>
-                          
-                          <!-- Update Enrollment Status Modal -->
-                          <div class="modal fade" id="updateEnrollmentModal<?= $enrollment['id'] ?>" tabindex="-1" aria-labelledby="updateEnrollmentModalLabel<?= $enrollment['id'] ?>" aria-hidden="true">
-                            <div class="modal-dialog">
-                              <div class="modal-content">
-                                <form action="<?= base_url('teacher/enrollments/' . $enrollment['id'] . '/status') ?>" method="post">
-                                  <?= csrf_field() ?>
-                                  <div class="modal-header">
-                                    <h5 class="modal-title" id="updateEnrollmentModalLabel<?= $enrollment['id'] ?>">Update Enrollment Status</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                  </div>
-                                  <div class="modal-body">
-                                    <p>Current Status: 
-                                      <span class="badge bg-<?= $status === 'accepted' ? 'success' : 'danger' ?>">
-                                        <?= $status === 'accepted' ? 'Enrolled' : 'Dropped' ?>
-                                      </span>
-                                    </p>
-                                    <div class="mb-3">
-                                      <label for="updateStatus<?= $enrollment['id'] ?>" class="form-label">Change Status To:</label>
-                                      <select class="form-select" id="updateStatus<?= $enrollment['id'] ?>" name="status" required>
-                                        <option value="accepted" <?= $status === 'accepted' ? 'selected' : '' ?>>Enrolled</option>
-                                        <option value="declined" <?= $status === 'declined' ? 'selected' : '' ?>>Dropped</option>
-                                      </select>
-                                    </div>
-                                  </div>
-                                  <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-warning">Update Status</button>
-                                  </div>
-                                </form>
-                              </div>
-                            </div>
-                          </div>
-                        <?php endif; ?>
-                      </td>
-                    </tr>
-                  <?php endforeach; ?>
-                </tbody>
-              </table>
-            </div>
-          <?php else: ?>
-            <p class="text-muted">No enrollment requests yet.</p>
-          <?php endif; ?>
 
           <hr class="my-4">
           <h4 class="card-title mb-3">My Courses</h4>
@@ -372,22 +273,19 @@
           <?php if (!empty($data['courses'])): ?>
             <div class="list-group mb-3">
               <?php foreach ($data['courses'] as $course): ?>
-                <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center position-relative">
                   <div>
                     <h5 class="mb-1"><?= esc($course['title']); ?></h5>
-                    <p class="text-muted mb-1"><?= esc($course['description']); ?></p>
+                    <p class="text-dark mb-1">Course Code: <?= esc($course['description']); ?></p>
                     <small class="text-dark d-block">Teacher: <?= esc(session()->get('name')) ?></small>
                     <small class="text-dark d-block">Semester/Term: <?= esc($course['semester'] ?? 'Not set') ?></small>
                     <small class="text-dark d-block">Time: <?= esc($course['class_time'] ?? 'TBA') ?></small>
                     <small class="text-dark d-block">SY: <?= esc($course['school_year'] ?? 'Set school year') ?></small>
                   </div>
-                  <div class="d-flex gap-2 align-items-center">
-                    <a href="<?= base_url('admin/course/' . $course['id'] . '/upload'); ?>" 
-                      class="btn btn-dark btn-sm rounded-pill">
-                      Add Material
-                    </a>
+                  <div class="d-flex gap-2 align-items-center ms-auto position-relative" style="z-index: 2;">
                     <button class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#editCourseModal<?= $course['id'] ?>">Edit</button>
                   </div>
+                  <a href="<?= base_url('teacher/course/' . $course['id']) ?>" class="stretched-link" aria-label="View course details"></a>
                 </div>
 
                 <div class="modal fade" id="editCourseModal<?= $course['id'] ?>" tabindex="-1" aria-labelledby="editCourseModalLabel<?= $course['id'] ?>" aria-hidden="true">
@@ -532,14 +430,16 @@
     <?php if (!empty($data['courses'])): ?>
         <?php foreach ($data['courses'] as $course): ?>
             <div class="col-md-4 mb-4">
-                <div class="card course-card">
-                    <div class="card-body">
-                        <h5 class="card-title"><?= esc($course['title']) ?></h5>
-                        <p class="card-text"><?= esc($course['description']) ?></p>
-                        <small class="text-muted d-block">Semester/Term: <?= esc($course['semester'] ?? 'Not set') ?></small>
-                        <a href="#" class="btn btn-dark">View Course</a>
-                    </div>
+              <div class="card course-card h-100">
+                <div class="card-body d-flex flex-column">
+                  <h5 class="card-title"><?= esc($course['title']) ?></h5>
+                  <p class="card-text">Course Code: <?= esc($course['description']) ?></p>
+                  <small class="text-muted d-block">Semester/Term: <?= esc($course['semester'] ?? 'Not set') ?></small>
+                  <div class="mt-auto">
+                    <a href="<?= base_url('student/course/' . (int) ($course['course_id'] ?? $course['id'] ?? 0)) ?>" class="btn btn-dark w-100">View Course</a>
+                  </div>
                 </div>
+              </div>
             </div>
         <?php endforeach; ?>
     <?php else: ?>
@@ -555,6 +455,7 @@
         <div class="list-group-item d-flex justify-content-between align-items-center">
           <div>
             <strong><?= esc($pending['title'] ?? 'Course') ?></strong>
+            <div class="text-muted small">Course Code: <?= esc($pending['description'] ?? 'N/A') ?></div>
             <div class="text-muted small">SY: <?= esc($pending['school_year'] ?? 'N/A') ?></div>
           </div>
           <span class="badge bg-warning text-dark">Pending</span>
@@ -657,7 +558,7 @@ $(document).ready(function () {
                             <div class="card course-card">
                                 <div class="card-body">
                                     <h5 class="card-title">${course.title}</h5>
-                                    <p class="card-text">${course.description}</p>
+                            <p class="card-text">Course Code: ${course.description}</p>
                                     <a href="#" class="btn btn-dark">View Course</a>
                                 </div>
                             </div>

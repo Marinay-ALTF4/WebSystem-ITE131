@@ -35,7 +35,7 @@
         <div class="row g-4">
           <!--  Enrolled Courses -->
           <div class="col-12 col-lg-6">
-            <div class="card shadow-sm">
+            <div class="card shadow-sm h-100">
               <div class="card-header fw-bold">Enrolled Courses</div>
               <ul id="enrolled-courses" class="list-group list-group-flush">
                 <?php if (!empty($data['enrolledCourses'])): ?>
@@ -44,13 +44,18 @@
                       <div class="d-flex justify-content-between align-items-start">
                         <div>
                           <div class="fw-semibold"><?= esc($course['title']) ?></div>
-                          <small class="text-dark d-block"><?= esc($course['description']) ?></small>
+                          <small class="text-dark d-block course-code">Course Code: <?= esc($course['description']) ?></small>
                           <small class="text-dark d-block">Teacher: <?= esc($course['teacher_name'] ?? 'TBD') ?></small>
                           <small class="text-dark d-block">Semester: <?= esc($course['semester'] ?? 'Not set') ?></small>
                           <small class="text-dark d-block">Time: <?= esc($course['class_time'] ?? 'TBD') ?></small>
                           <small class="text-dark d-block">SY: <?= esc($course['school_year'] ?? 'TBD') ?></small>
                         </div>
-                        <span class="badge text-bg-success">Enrolled</span>
+                        <div class="text-end">
+                          <span class="badge text-bg-success mb-2">Enrolled</span>
+                          <div>
+                                <a href="<?= base_url('student/course/' . (int) ($course['course_id'] ?? $course['id'] ?? 0)) ?>" class="btn btn-dark">View Course</a>
+                          </div>
+                        </div>
                       </div>
                     </li>
                   <?php endforeach; ?>
@@ -72,7 +77,7 @@
                       <div class="d-flex justify-content-between align-items-start">
                         <div>
                           <div class="fw-semibold"><?= esc($course['title']) ?></div>
-                          <small class="text-dark"><?= esc($course['description']) ?></small>
+                          <small class="text-dark course-code">Course Code: <?= esc($course['description']) ?></small>
                         </div>
                         <span class="badge text-bg-warning">Pending</span>
                       </div>
@@ -93,7 +98,7 @@
                       <div class="d-flex justify-content-between align-items-start">
                         <div>
                           <div class="fw-semibold"><?= esc($course['title']) ?></div>
-                          <small class="text-dark d-block"><?= esc($course['description']) ?></small>
+                          <small class="text-dark d-block course-code">Course Code: <?= esc($course['description']) ?></small>
                           <small class="text-dark d-block">Teacher: <?= esc($course['teacher_name'] ?? 'TBD') ?></small>
                           <small class="text-dark d-block">Semester: <?= esc($course['semester'] ?? 'Not set') ?></small>
                           <small class="text-dark d-block">Time: <?= esc($course['class_time'] ?? 'TBD') ?></small>
@@ -156,7 +161,7 @@
             var status = data.status || 'pending';
             var $item = $btn.closest('li');
             var title = $item.find('.fw-semibold').text();
-            var desc = $item.find('small.text-muted').text();
+            var desc = $item.find('.course-code').text();
             var targetList = status === 'accepted' ? '#enrolled-courses' : '#pending-courses';
             var badgeClass = status === 'accepted' ? 'text-bg-success' : 'text-bg-warning';
             var badgeLabel = status === 'accepted' ? 'Enrolled' : 'Pending';
