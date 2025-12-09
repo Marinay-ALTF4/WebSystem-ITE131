@@ -11,7 +11,7 @@ class CourseSeeder extends Seeder
         $data = [
             [
                 'title' => 'Introduction to Web Development',
-                'description' => 'Learn the fundamentals of HTML, CSS, and JavaScript for building modern websites.',
+                'description' => 'WEB-101',
                 'teacher_id' => 2,
                 'school_year' => '2024-2025',
                 'class_time' => 'MWF 9:00-10:00 AM',
@@ -20,7 +20,7 @@ class CourseSeeder extends Seeder
             ],
             [
                 'title' => 'PHP Programming Fundamentals',
-                'description' => 'Master PHP programming from basics to advanced concepts including OOP and database integration.',
+                'description' => 'PHP-201',
                 'teacher_id' => 2,
                 'school_year' => '2024-2025',
                 'class_time' => 'TTh 1:00-2:30 PM',
@@ -29,7 +29,7 @@ class CourseSeeder extends Seeder
             ],
             [
                 'title' => 'Database Design and Management',
-                'description' => 'Learn to design, implement, and manage relational databases using MySQL.',
+                'description' => 'DB-210',
                 'teacher_id' => 2,
                 'school_year' => '2024-2025',
                 'class_time' => 'Sat 8:00-11:00 AM',
@@ -38,7 +38,7 @@ class CourseSeeder extends Seeder
             ],
             [
                 'title' => 'CodeIgniter Framework',
-                'description' => 'Build web applications using the CodeIgniter PHP framework with MVC architecture.',
+                'description' => 'CI-301',
                 'teacher_id' => 3,
                 'school_year' => '2024-2025',
                 'class_time' => 'MWF 10:00-11:00 AM',
@@ -47,7 +47,7 @@ class CourseSeeder extends Seeder
             ],
             [
                 'title' => 'JavaScript Advanced Concepts',
-                'description' => 'Explore advanced JavaScript features including ES6+, async programming, and DOM manipulation.',
+                'description' => 'JS-310',
                 'teacher_id' => 3,
                 'school_year' => '2024-2025',
                 'class_time' => 'TTh 3:00-4:30 PM',

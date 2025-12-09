@@ -231,6 +231,7 @@ public function addCourse()
     $title = $this->request->getPost('title');
     $description = $this->request->getPost('description');
     $semester = $this->request->getPost('semester');
+    $term = $this->request->getPost('term');
     $classTime = $this->request->getPost('class_time');
     $schoolYear = $this->request->getPost('school_year');
     
@@ -244,12 +245,34 @@ public function addCourse()
         $teacherId = (int) $session->get('userID');
     }
 
+    // Determine semester/term label (store both if provided)
+    $semesterLabel = trim((string) $semester);
+    $termLabel = trim((string) $term);
+    if ($termLabel !== '') {
+        $semesterLabel = $semesterLabel !== '' ? $semesterLabel . ' / ' . $termLabel : $termLabel;
+    }
+
+    if ($semesterLabel === '') {
+        return redirect()->back()->with('error', 'Please select a semester or term.');
+    }
+
+    // Prevent duplicate course with same title and time for the same teacher
     $courseModel = new CourseModel();
+    $existing = $courseModel
+        ->where('teacher_id', $teacherId)
+        ->where('LOWER(title)', strtolower((string) $title))
+        ->where('LOWER(class_time)', strtolower((string) $classTime))
+        ->first();
+
+    if ($existing) {
+        return redirect()->back()->with('error', 'You already have a course with this title at the same time.');
+    }
+
     $courseModel->save([
         'title' => $title,
         'description' => $description,
         'teacher_id' => $teacherId,
-        'semester' => $semester,
+        'semester' => $semesterLabel,
         'school_year' => $schoolYear,
         'class_time' => $classTime
     ]);

@@ -258,10 +258,22 @@ class Course extends BaseController
             }
         }
 
+        $semesterInput = trim((string) $this->request->getPost('semester'));
+        $termInput = trim((string) $this->request->getPost('term'));
+
+        $semesterLabel = $semesterInput;
+        if ($termInput !== '') {
+            $semesterLabel = $semesterInput !== '' ? $semesterInput . ' / ' . $termInput : $termInput;
+        }
+
+        if ($semesterLabel === '') {
+            return redirect()->back()->with('error', 'Please select a semester or term.');
+        }
+
         $data = [
             'title' => trim((string) $this->request->getPost('title')),
             'description' => trim((string) $this->request->getPost('description')),
-            'semester' => trim((string) $this->request->getPost('semester')),
+            'semester' => $semesterLabel,
             'school_year' => trim((string) $this->request->getPost('school_year')),
             'class_time' => trim((string) $this->request->getPost('class_time')),
         ];

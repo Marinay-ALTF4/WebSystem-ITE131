@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
+use App\Models\CourseModel;
 use CodeIgniter\Controller;
 
 class AdminController extends Controller
@@ -12,6 +13,26 @@ class AdminController extends Controller
     public function __construct()
     {
         $this->userModel = new UserModel();
+    }
+
+    public function courses()
+    {
+        $session = session();
+        if (! $session->get('isLoggedIn') || strtolower((string) $session->get('role')) !== 'admin') {
+            return redirect()->to(base_url('dashboard'))->with('error', 'Access denied.');
+        }
+
+        $courseModel = new CourseModel();
+        $courses = $courseModel->select('courses.*, users.name AS teacher_name')
+            ->join('users', 'users.id = courses.teacher_id', 'left')
+            ->findAll();
+
+        $teachers = $this->userModel->where('role', 'teacher')->orderBy('name', 'ASC')->findAll();
+
+        return view('admin/courses', [
+            'courses' => $courses,
+            'teachers' => $teachers,
+        ]);
     }
 
     // Add a new user

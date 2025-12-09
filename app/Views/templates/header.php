@@ -31,9 +31,14 @@ $isPath = function (string $path) use ($currentPath): bool {
     <div class="collapse navbar-collapse" id="navbarNav">
       <!-- Left side -->
       <ul class="navbar-nav me-auto">
-        <?php if (in_array($role, ['admin', 'teacher'])): ?>
+        <?php if ($role === 'admin'): ?>
+          <li class="nav-item me-2"><a class="btn btn-outline-light btn-nav px-3 py-1 fs-6 <?= $isPath('dashboard') ? 'active' : '' ?>" href="<?= base_url('dashboard') ?>">Dashboard</a></li>
+          <li class="nav-item me-2"><a class="btn btn-outline-light btn-nav px-3 py-1 fs-6 <?= $isPath('admin/courses') ? 'active' : '' ?>" href="<?= base_url('admin/courses') ?>">Courses</a></li>
+
+        <?php elseif ($role === 'teacher'): ?>
           <li class="nav-item me-2"><a class="btn btn-outline-light btn-nav px-3 py-1 fs-6 <?= $isPath('dashboard') ? 'active' : '' ?>" href="<?= base_url('dashboard') ?>">Dashboard</a></li>
           <li class="nav-item me-2"><a class="btn btn-outline-light btn-nav px-3 py-1 fs-6" href="#">File Upload</a></li>
+
         <?php elseif ($role === 'student'): ?>
           <li class="nav-item me-2"><a class="btn btn-outline-light btn-nav px-3 py-1 fs-6 <?= $isPath('dashboard') ? 'active' : '' ?>" href="<?= base_url('dashboard') ?>">Dashboard</a></li>
           <li class="nav-item me-2"><a class="btn btn-outline-light btn-nav px-3 py-1 fs-6 <?= $isPath('studentCourse') ? 'active' : '' ?>" href="<?= base_url('studentCourse') ?>">My Courses</a></li>

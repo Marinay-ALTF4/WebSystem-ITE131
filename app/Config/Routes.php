@@ -33,6 +33,7 @@ use CodeIgniter\Router\RouteCollection;
         $routes->get('/studentCourse', 'Auth::studentCourse');
         $routes->post('teacher/course/add', 'Auth::addCourse');
         $routes->post('admin/course/add', 'Auth::addCourse');
+        $routes->get('admin/courses', 'AdminController::courses');
         $routes->post('teacher/course/update/(:num)', 'Course::updateCourse/$1');
         $routes->post('admin/course/delete/(:num)', 'Course::deleteCourse/$1');
         $routes->post('teacher/enrollments/(:num)/status', 'Course::updateEnrollmentStatus/$1');
