@@ -56,38 +56,6 @@ include('app/Views/templates/header.php');
 
   <div class="card shadow-sm mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
-      <span class="fw-semibold">Assignments</span>
-      <button class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#assignmentModal">Add Assignment</button>
-    </div>
-    <div class="card-body p-0">
-      <?php if (!empty($assignments)): ?>
-        <div class="list-group list-group-flush">
-          <?php foreach ($assignments as $item): ?>
-            <div class="list-group-item">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <a class="fw-semibold text-decoration-none" href="<?= base_url('teacher/course/' . ($course['id'] ?? 0) . '/assignments/' . $item['id']) ?>"><?= esc($item['title']) ?></a>
-                  <?php if (!empty($item['points'])): ?>
-                    <div class="text-muted small">Points: <?= esc($item['points']) ?></div>
-                  <?php endif; ?>
-                  <div class="text-muted small">Type: <?= esc($item['assignment_type']) ?></div>
-                  <div class="text-muted small">Submit: <?= esc(ucfirst((string) $item['submit_type'])) ?></div>
-                  <div class="text-muted small">Attempts: <?= $item['attempts_allowed'] === null ? 'Unlimited' : esc($item['attempts_allowed']) ?></div>
-                  <div class="text-muted small">Due: <?= $item['due_date'] ? esc(date('M d, Y h:i A', strtotime($item['due_date']))) : 'None' ?></div>
-                  <div class="text-muted small">Available After: <?= $item['available_after'] ? esc(date('M d, Y h:i A', strtotime($item['available_after']))) : 'Immediately' ?></div>
-                </div>
-              </div>
-            </div>
-          <?php endforeach; ?>
-        </div>
-      <?php else: ?>
-        <p class="text-muted m-3">No assignments yet.</p>
-      <?php endif; ?>
-    </div>
-  </div>
-
-  <div class="card shadow-sm">
-    <div class="card-header d-flex justify-content-between align-items-center">
       <span class="fw-semibold">Enrollments</span>
       <span class="badge bg-dark">Pending: <?= count(array_filter($enrollments ?? [], fn($e) => strtolower($e['status'] ?? 'pending') === 'pending')) ?></span>
     </div>
@@ -157,6 +125,38 @@ include('app/Views/templates/header.php');
         </div>
       <?php else: ?>
         <p class="text-muted m-3">No enrollment requests for this course yet.</p>
+      <?php endif; ?>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span class="fw-semibold">Assignments</span>
+      <button class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#assignmentModal">Add Assignment</button>
+    </div>
+    <div class="card-body p-0">
+      <?php if (!empty($assignments)): ?>
+        <div class="list-group list-group-flush">
+          <?php foreach ($assignments as $item): ?>
+            <div class="list-group-item">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <a class="fw-semibold text-decoration-none" href="<?= base_url('teacher/course/' . ($course['id'] ?? 0) . '/assignments/' . $item['id']) ?>"><?= esc($item['title']) ?></a>
+                  <?php if (!empty($item['points'])): ?>
+                    <div class="text-muted small">Points: <?= esc($item['points']) ?></div>
+                  <?php endif; ?>
+                  <div class="text-muted small">Type: <?= esc($item['assignment_type']) ?></div>
+                  <div class="text-muted small">Submit: <?= esc(ucfirst((string) $item['submit_type'])) ?></div>
+                  <div class="text-muted small">Attempts: <?= $item['attempts_allowed'] === null ? 'Unlimited' : esc($item['attempts_allowed']) ?></div>
+                  <div class="text-muted small">Due: <?= $item['due_date'] ? esc(date('M d, Y h:i A', strtotime($item['due_date']))) : 'None' ?></div>
+                  <div class="text-muted small">Available After: <?= $item['available_after'] ? esc(date('M d, Y h:i A', strtotime($item['available_after']))) : 'Immediately' ?></div>
+                </div>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      <?php else: ?>
+        <p class="text-muted m-3">No assignments yet.</p>
       <?php endif; ?>
     </div>
   </div>
