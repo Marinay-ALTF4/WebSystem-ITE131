@@ -18,9 +18,10 @@ class Auth extends BaseController
         if ($this->request->getMethod() === 'POST') {
             $rules = [
                 'name' => [
-                    'rules'  => 'required|min_length[3]|regex_match[/^[A-Za-z][A-Za-z\s\.\'\-]*$/]',
+                    'rules'  => 'required|min_length[5]|regex_match[/^[A-Za-z0-9@\.\'\-_ ]+$/]',
                     'errors' => [
-                        'regex_match' => 'Name may only contain letters, spaces, periods (no numbers or symbols).',
+                        'regex_match' => 'Name may only use letters, numbers, spaces, and @ . \" - _ characters.',
+                        'min_length' => 'Name must be at least 5 characters.',
                     ],
                 ],
                 'email' => [

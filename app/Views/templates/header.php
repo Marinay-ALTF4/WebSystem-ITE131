@@ -1,4 +1,19 @@
-<?php $role = strtolower(session()->get('role') ?? ''); ?>
+<?php
+$role = strtolower(session()->get('role') ?? '');
+$uri = service('uri');
+$segments = array_map('strtolower', $uri->getSegments());
+if (!empty($segments) && $segments[0] === 'index.php') {
+  array_shift($segments);
+}
+$currentPath = implode('/', $segments);
+$isPath = function (string $path) use ($currentPath): bool {
+  $needle = strtolower(trim($path, '/'));
+  if ($needle === '') {
+    return $currentPath === '';
+  }
+  return $needle !== '' && strpos($currentPath, $needle) === 0;
+};
+?>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -17,11 +32,11 @@
       <!-- Left side -->
       <ul class="navbar-nav me-auto">
         <?php if (in_array($role, ['admin', 'teacher'])): ?>
-          <li class="nav-item me-2"><a class="btn btn-outline-light px-3 py-1 fs-6" href="<?= base_url('dashboard') ?>">Dashboard</a></li>
-          <li class="nav-item me-2"><a class="btn btn-outline-light px-3 py-1 fs-6" href="#">File Upload</a></li>
+          <li class="nav-item me-2"><a class="btn btn-outline-light btn-nav px-3 py-1 fs-6 <?= $isPath('dashboard') ? 'active' : '' ?>" href="<?= base_url('dashboard') ?>">Dashboard</a></li>
+          <li class="nav-item me-2"><a class="btn btn-outline-light btn-nav px-3 py-1 fs-6" href="#">File Upload</a></li>
         <?php elseif ($role === 'student'): ?>
-          <li class="nav-item me-2"><a class="btn btn-outline-light px-3 py-1 fs-6" href="<?= base_url('dashboard') ?>">Dashboard</a></li>
-          <li class="nav-item me-2"><a class="btn btn-outline-light px-3 py-1 fs-6" href="<?= base_url('studentCourse') ?>">My Courses</a></li>
+          <li class="nav-item me-2"><a class="btn btn-outline-light btn-nav px-3 py-1 fs-6 <?= $isPath('dashboard') ? 'active' : '' ?>" href="<?= base_url('dashboard') ?>">Dashboard</a></li>
+          <li class="nav-item me-2"><a class="btn btn-outline-light btn-nav px-3 py-1 fs-6 <?= $isPath('studentCourse') ? 'active' : '' ?>" href="<?= base_url('studentCourse') ?>">My Courses</a></li>
         <?php endif; ?>
       </ul>
 
@@ -47,8 +62,8 @@
             <a class="btn btn-outline-light px-3 py-1 fs-6" href="<?= base_url('logout') ?>">Logout</a>
           </li>
         <?php else: ?>
-          <li class="nav-item me-2"><a class="btn btn-outline-light px-3 py-1 fs-6" href="<?= base_url('login') ?>">Login</a></li>
-          <li class="nav-item"><a class="btn btn-primary px-3 py-1 fs-6" href="<?= base_url('register') ?>">Register</a></li>
+          <li class="nav-item me-2"><a class="btn btn-outline-light btn-nav px-3 py-1 fs-6 <?= $isPath('login') ? 'active' : '' ?>" href="<?= base_url('login') ?>">Login</a></li>
+          <li class="nav-item"><a class="btn btn-primary btn-nav px-3 py-1 fs-6 <?= $isPath('register') ? 'active' : '' ?>" href="<?= base_url('register') ?>">Register</a></li>
         <?php endif; ?>
       </ul>
     </div>
@@ -96,6 +111,13 @@ $(function(){
 .btn-outline-light:hover {
   background:#f8f9fa;
   color:#212529;
+}
+.btn-nav.active,
+.btn-nav.active:hover {
+  background:#f8f9fa;
+  color:#212529;
+  border-color:#f8f9fa;
+  box-shadow: inset 0 0 0 1px #f8f9fa;
 }
 #notifBadge {
   font-size: .7rem;

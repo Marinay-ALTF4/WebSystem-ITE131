@@ -25,10 +25,10 @@ class AdminController extends Controller
             return redirect()->back()->with('error', 'All fields are required.');
         }
 
-        // Validate name - no special characters or numbers
-        $namePattern = '/^[A-Za-z][A-Za-z\s\.\'\-]*$/';
+        // Validate name - allow letters, numbers, spaces, and limited symbols with min length 5
+        $namePattern = '/^[A-Za-z0-9@\.\'\-_ ]{5,}$/';
         if (!preg_match($namePattern, trim($data['name']))) {
-            return redirect()->back()->with('error', 'Invalid name format. Name must start with a letter and can only contain letters, spaces, periods (.), apostrophes (\'), and hyphens (-). Numbers and special characters are not allowed.');
+            return redirect()->back()->with('error', 'Invalid name format. Use at least 5 characters with letters, numbers, spaces, and only @ . \" - _ allowed.');
         }
 
         // Validate email format
@@ -94,9 +94,9 @@ class AdminController extends Controller
 
         // Prevent changing the currently logged-in admin into a deleted user indirectly.
         $email = trim(strtolower($data['email']));
-        $namePattern = '/^[A-Za-z][A-Za-z\s\.\'\-]*$/';
+        $namePattern = '/^[A-Za-z0-9@\.\'\-_ ]{5,}$/';
         if (!preg_match($namePattern, trim($data['name']))) {
-            return redirect()->back()->with('error', 'Invalid name format.');
+            return redirect()->back()->with('error', 'Invalid name format. Use at least 5 characters with letters, numbers, spaces, and only @ . \" - _ allowed.');
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {

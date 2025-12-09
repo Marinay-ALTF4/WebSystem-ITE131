@@ -31,7 +31,7 @@
 
                 <div class="mb-2">
                     <label class="form-label small" style="color: #000000ff;">Name</label>
-                    <input type="text" name="name" class="form-control form-control-sm" placeholder="Enter your name" value="<?= set_value('name') ?>" required>
+                    <input type="text" name="name" class="form-control form-control-sm" placeholder="Enter your name" value="<?= set_value('name') ?>" pattern="[A-Za-z0-9@\.\'\-_ ]{5,}" title="At least 5 characters. Allowed: letters, numbers, spaces, @ . ' - _" required>
                 </div>
 
                 <div class="mb-2">

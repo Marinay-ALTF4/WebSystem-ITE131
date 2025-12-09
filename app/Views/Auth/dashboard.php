@@ -76,11 +76,11 @@
           <div class="mb-3">
             <label for="name" class="form-label">Full Name</label>
             <input type="text" class="form-control" id="name" name="name" 
-                   pattern="^[A-Za-z][A-Za-z\s\.\'\-]*$" 
-                   title="Name must start with a letter and can only contain letters, spaces, periods, apostrophes, and hyphens. No numbers or special characters allowed."
+                   pattern="[A-Za-z0-9@\.\'\-_ ]{5,}" 
+                   title="At least 5 characters. Allowed: letters, numbers, spaces, @ . ' - _"
                    required>
             <div class="invalid-feedback" id="nameError"></div>
-            <small class="form-text text-muted">Only letters, spaces, periods (.), apostrophes ('), and hyphens (-) are allowed. No numbers or special characters.</small>
+                 <small class="form-text text-muted">Use at least 5 characters. Allowed: letters, numbers, spaces, and @ . ' - _</small>
           </div>
 
           <div class="mb-3">
