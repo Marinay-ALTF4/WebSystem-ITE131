@@ -138,10 +138,10 @@ include('app/Views/templates/header.php');
       <?php if (!empty($assignments)): ?>
         <div class="list-group list-group-flush">
           <?php foreach ($assignments as $item): ?>
-            <div class="list-group-item">
+            <a class="list-group-item list-group-item-action text-decoration-none" href="<?= base_url('teacher/course/' . ($course['id'] ?? 0) . '/assignments/' . $item['id']) ?>">
               <div class="d-flex justify-content-between align-items-center">
                 <div>
-                  <a class="fw-semibold text-decoration-none" href="<?= base_url('teacher/course/' . ($course['id'] ?? 0) . '/assignments/' . $item['id']) ?>"><?= esc($item['title']) ?></a>
+                  <div class="fw-semibold"><?= esc($item['title']) ?></div>
                   <?php if (!empty($item['points'])): ?>
                     <div class="text-muted small">Points: <?= esc($item['points']) ?></div>
                   <?php endif; ?>
@@ -152,7 +152,7 @@ include('app/Views/templates/header.php');
                   <div class="text-muted small">Available After: <?= $item['available_after'] ? esc(date('M d, Y h:i A', strtotime($item['available_after']))) : 'Immediately' ?></div>
                 </div>
               </div>
-            </div>
+            </a>
           <?php endforeach; ?>
         </div>
       <?php else: ?>
