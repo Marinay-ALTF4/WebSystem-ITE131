@@ -23,6 +23,18 @@ $timeOptions = [
     <div class="card-body">
       <h4 class="mb-3">Available Courses</h4>
 
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <form id="adminCourseSearchForm" class="d-flex">
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-search"></i></span>
+              <input type="text" id="adminCourseSearch" class="form-control" placeholder="Search courses..." name="search_term">
+              <button class="btn btn-outline-dark" type="submit"><i class="bi bi-search"></i> Search</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
       <?php if (session()->getFlashdata('success')): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
           <?= session()->getFlashdata('success') ?>
@@ -38,9 +50,9 @@ $timeOptions = [
       <?php endif; ?>
 
       <?php if (!empty($courses)): ?>
-        <div class="list-group mb-3">
+        <div id="adminCoursesContainer" class="list-group mb-3">
           <?php foreach ($courses as $course): ?>
-            <div class="list-group-item d-flex justify-content-between align-items-center">
+            <div class="list-group-item d-flex justify-content-between align-items-center admin-course-item" data-course-id="<?= (int) $course['id'] ?>" data-search="<?= esc(strtolower((string) ($course['title'] . ' ' . $course['description'] . ' ' . ($course['teacher_name'] ?? '') . ' ' . ($course['semester'] ?? '') . ' ' . ($course['school_year'] ?? '')))) ?>">
               <div>
                 <h5 class="mb-1"><?= esc($course['title']); ?></h5>
                 <p class="text-black mb-1">Course Code: <?= esc($course['description']); ?></p>
@@ -221,6 +233,89 @@ $timeOptions = [
     </div>
   </div>
 </div>
+
+<script>
+  (function() {
+    const searchInput = document.getElementById('adminCourseSearch');
+    const searchForm = document.getElementById('adminCourseSearchForm');
+    const container = document.getElementById('adminCoursesContainer');
+    if (!searchInput || !container) return;
+
+    const items = Array.from(container.querySelectorAll('.admin-course-item'));
+    const noResults = document.createElement('div');
+    noResults.className = 'list-group-item text-muted d-none';
+    noResults.textContent = 'No courses found matching your search.';
+    container.appendChild(noResults);
+
+    function showAll() {
+      items.forEach(item => item.classList.remove('d-none'));
+      noResults.classList.add('d-none');
+    }
+
+    function filterClient(term) {
+      let anyVisible = false;
+      items.forEach(item => {
+        const text = (item.dataset.search || '').toString();
+        const show = text.includes(term);
+        item.classList.toggle('d-none', term && !show);
+        anyVisible = anyVisible || show;
+      });
+      noResults.classList.toggle('d-none', anyVisible || term === '');
+    }
+
+    searchInput.addEventListener('input', () => {
+      const term = searchInput.value.toLowerCase();
+      if (term === '') {
+        showAll();
+        return;
+      }
+      filterClient(term);
+    });
+
+    if (searchForm) {
+      searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const term = searchInput.value.trim();
+
+        if (term === '') {
+          showAll();
+          return;
+        }
+
+        fetch('<?= base_url("courses/search") ?>?search_term=' + encodeURIComponent(term), {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+          .then(resp => resp.ok ? resp.json() : Promise.reject())
+          .then(data => {
+            const hasResults = Array.isArray(data) && data.length > 0;
+            if (!hasResults) {
+              items.forEach(item => item.classList.add('d-none'));
+              noResults.textContent = 'No courses found matching your search.';
+              noResults.classList.remove('d-none');
+              return;
+            }
+
+            const ids = new Set(data.map(c => String(c.id ?? c.course_id ?? '')));
+            let anyVisible = false;
+
+            items.forEach(item => {
+              const itemId = String(item.dataset.courseId || '');
+              const show = ids.has(itemId);
+              item.classList.toggle('d-none', !show);
+              anyVisible = anyVisible || show;
+            });
+
+            noResults.classList.toggle('d-none', anyVisible);
+          })
+          .catch(() => {
+            items.forEach(item => item.classList.add('d-none'));
+            noResults.textContent = 'Search failed. Please try again.';
+            noResults.classList.remove('d-none');
+          });
+      });
+    }
+  })();
+</script>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

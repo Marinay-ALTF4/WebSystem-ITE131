@@ -123,24 +123,22 @@ class Course extends BaseController
     {
         $searchTerm = trim((string) $this->request->getGet('search_term'));
 
-        if ($searchTerm === '') {
-            if ($this->request->isAJAX()) {
-                return $this->response->setJSON([]);
-            }
+        $builder = $this->courseModel
+            ->select('courses.*, users.name AS teacher_name')
+            ->join('users', 'users.id = courses.teacher_id', 'left');
 
-            return view('Courses/search', [
-                'courses'    => [],
-                'searchTerm' => $searchTerm,
-                'error'      => 'Please enter a search term.',
-            ]);
+        if ($searchTerm !== '') {
+            $builder->groupStart()
+                ->like('courses.title', $searchTerm)
+                ->orLike('courses.description', $searchTerm)
+                ->orLike('courses.semester', $searchTerm)
+                ->orLike('courses.school_year', $searchTerm)
+                ->orLike('courses.class_time', $searchTerm)
+                ->orLike('users.name', $searchTerm)
+                ->groupEnd();
         }
 
-        $courses = $this->courseModel
-            ->groupStart()
-            ->like('title', $searchTerm)
-            ->orLike('description', $searchTerm)
-            ->groupEnd()
-            ->findAll();
+        $courses = $builder->findAll();
 
         if ($this->request->isAJAX()) {
             return $this->response->setJSON($courses);
@@ -148,7 +146,8 @@ class Course extends BaseController
 
         return view('Courses/search', [
             'courses' => $courses,
-            'searchTerm' => $searchTerm
+            'searchTerm' => $searchTerm,
+            'error' => null,
         ]);
     }
 
