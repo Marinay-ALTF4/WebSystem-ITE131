@@ -33,6 +33,7 @@ include('app/Views/templates/header.php');
         <a class="list-group-item list-group-item-action border-dark" data-bs-toggle="tab" href="#tab-assignments">Assignments</a>
         <a class="list-group-item list-group-item-action border-dark" data-bs-toggle="tab" href="#tab-grades">Grades</a>
         <a class="list-group-item list-group-item-action border-dark" data-bs-toggle="tab" href="#tab-people">People</a>
+
       </div>
     </div>
 
